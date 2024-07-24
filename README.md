@@ -51,5 +51,57 @@ This project is a C++ application using Dear ImGui and GLFW.
 - For linker errors, verify that all required libraries are correctly linked.
 - Make sure you're using a compatible version of Visual Studio and have the C++ desktop development workload installed.
 
+## Collaborating via GitHub
+
+To collaborate on this project using GitHub, follow these steps:
+
+
+1. Access to the Repository:
+   - The project owner will need to add you as a collaborator.
+   - Check your email for an invitation to collaborate and accept it.
+
+2. Clone the Repository:
+   - Open Git Bash or your preferred Git client
+   - Run: `git clone https://github.com/JohnniesHere/ImGui-JSON-project.git`
+
+3. Create a Branch:
+   - Navigate to the project directory: `cd ImGui-JSON-project`
+   - Create and switch to a new branch: `git checkout -b [your-branch-name]`
+   - Use a descriptive name for your branch, e.g., `feature-user-authentication`
+
+5. Make Changes:
+   - Make your changes to the code using Visual Studio
+
+6. Commit Changes:
+   - Stage your changes: `git add .`
+   - Commit your changes: `git commit -m "Descriptive commit message"`
+
+7. Push Changes:
+   - Push your branch to GitHub: `git push origin [your-branch-name]`
+
+8. Create a Pull Request:
+   - Go to the repository page on GitHub
+   - Click on "Pull requests" > "New pull request"
+   - Select your branch and create the pull request
+   - Add a description of your changes
+   - The project owner will review your changes and merge them if approved
+
+9. Stay Updated:
+   - Regularly pull changes from the main branch:
+     ```
+     git checkout main
+     git pull origin main
+     git checkout [your-branch-name]
+     git merge main
+     ```
+
+10. Resolve Conflicts:
+    - If there are merge conflicts, resolve them in Visual Studio
+    - Commit the resolved changes
+
+Remember to communicate with your team about which files you're working on to avoid merge conflicts.
+
+
+
 
 
