@@ -15,40 +15,52 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CPPProject.cpp">
+    <ClCompile Include="src\CPPProject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-1.90.8\imgui.cpp">
+    <ClCompile Include="third_party\imgui-1.90.8\backends\imgui_impl_glfw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-1.90.8\imgui_demo.cpp">
+    <ClCompile Include="third_party\imgui-1.90.8\backends\imgui_impl_opengl3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-1.90.8\imgui_draw.cpp">
+    <ClCompile Include="third_party\imgui-1.90.8\imgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-1.90.8\imgui_tables.cpp">
+    <ClCompile Include="third_party\imgui-1.90.8\imgui_demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-1.90.8\imgui_widgets.cpp">
+    <ClCompile Include="third_party\imgui-1.90.8\imgui_draw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-1.90.8\backends\imgui_impl_glfw.cpp">
+    <ClCompile Include="third_party\imgui-1.90.8\imgui_tables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-1.90.8\backends\imgui_impl_opengl3.cpp">
+    <ClCompile Include="third_party\imgui-1.90.8\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="imgui-1.90.8\imgui.h">
+    <ClInclude Include="third_party\httplib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-1.90.8\backends\imgui_impl_glfw.h">
+    <ClInclude Include="third_party\imgui-1.90.8\backends\imgui_impl_glfw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-1.90.8\backends\imgui_impl_opengl3.h">
+    <ClInclude Include="third_party\imgui-1.90.8\backends\imgui_impl_opengl3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="third_party\imgui-1.90.8\imgui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\JSON\json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
