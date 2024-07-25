@@ -104,12 +104,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\CPP Project\CPPProject\JSON;D:\CPP Project\CPPProject\imgui-1.90.8;D:\CPP Project\CPPProject\glfw-3.4.bin.WIN64\include;D:\CPP Project\CPPProject\imgui-1.90.8\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\CPP Project\CPPProject\third_party\JSON;D:\CPP Project\CPPProject\third_party\imgui-1.90.8;D:\CPP Project\CPPProject\third_party\glfw-3.4.bin.WIN64\include;D:\CPP Project\CPPProject\third_party\imgui-1.90.8\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\CPP Project\CPPProject\glfw-3.4.bin.WIN64\lib-vc2022;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\CPP Project\CPPProject\third_party\glfw-3.4.bin.WIN64\lib-vc2022</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -121,47 +122,36 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\CPP Project\CPPProject\JSON;D:\CPP Project\CPPProject\imgui-1.90.8;D:\CPP Project\CPPProject\glfw-3.4.bin.WIN64\include;D:\CPP Project\CPPProject\imgui-1.90.8\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\CPP Project\CPPProject\third_party\JSON;D:\CPP Project\CPPProject\third_party\imgui-1.90.8;D:\CPP Project\CPPProject\third_party\glfw-3.4.bin.WIN64\include;D:\CPP Project\CPPProject\third_party\imgui-1.90.8\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\CPP Project\CPPProject\glfw-3.4.bin.WIN64\lib-vc2022;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\CPP Project\CPPProject\third_party\glfw-3.4.bin.WIN64\lib-vc2022</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;gdi32.lib;shell32.lib;opengl32.lib;
 gdi32.lib;
 shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CPPProject.cpp" />
-    <ClCompile Include="imgui-1.90.8\backends\imgui_impl_glfw.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="imgui-1.90.8\backends\imgui_impl_opengl3.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="imgui-1.90.8\imgui.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="imgui-1.90.8\imgui_demo.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="imgui-1.90.8\imgui_draw.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="imgui-1.90.8\imgui_tables.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="imgui-1.90.8\imgui_widgets.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="src\CPPProject.cpp" />
+    <ClCompile Include="third_party\imgui-1.90.8\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="third_party\imgui-1.90.8\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="third_party\imgui-1.90.8\imgui.cpp" />
+    <ClCompile Include="third_party\imgui-1.90.8\imgui_demo.cpp" />
+    <ClCompile Include="third_party\imgui-1.90.8\imgui_draw.cpp" />
+    <ClCompile Include="third_party\imgui-1.90.8\imgui_tables.cpp" />
+    <ClCompile Include="third_party\imgui-1.90.8\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="imgui-1.90.8\backends\imgui_impl_glfw.h" />
-    <ClInclude Include="imgui-1.90.8\backends\imgui_impl_opengl3.h" />
-    <ClInclude Include="imgui-1.90.8\imgui.h" />
+    <ClInclude Include="third_party\httplib.h" />
+    <ClInclude Include="third_party\imgui-1.90.8\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="third_party\imgui-1.90.8\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="third_party\imgui-1.90.8\imgui.h" />
+    <ClInclude Include="third_party\JSON\json.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
