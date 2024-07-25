@@ -72,7 +72,7 @@ int main()
     ImGui_ImplOpenGL3_Init("#version 130");
 
     // Load background texture
-    GLuint backgroundTexture = loadTexture("D:\\CPP Project\\CPPProject\\Assests\\image.png");
+    GLuint backgroundTexture = loadTexture("D:\\CPP Project\\CPPProject\\assets\\image.png");
 
     // Main loop
     while (!glfwWindowShouldClose(window))
