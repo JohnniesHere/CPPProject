@@ -39,10 +39,10 @@
     <ClCompile Include="third_party\imgui-1.90.8\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GuiManager.cpp">
+    <ClCompile Include="src\DataManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\DataManager.cpp">
+    <ClCompile Include="src\GuiManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,13 +62,13 @@
     <ClInclude Include="third_party\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GuiManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\DataManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="third_party\nlohman\json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GuiManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
