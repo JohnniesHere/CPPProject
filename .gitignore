@@ -6,6 +6,9 @@
 *.sln.docstates
 *.vcxproj.filters
 
+.vs/CPPProject/v17/
+*.suo
+
 # Visual C++ cache files
 ipch/
 *.aps
