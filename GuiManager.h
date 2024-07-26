@@ -47,5 +47,8 @@ private:
     bool isChampionSplashLoaded;
     void LoadChampionSplash(const std::string& championName);
     static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
+    bool isDragging = false;
+    ImVec2 dragStartPos;
+    void CreateBoldFont();
 
 };
