@@ -1,6 +1,18 @@
 ﻿  GuiManager.cpp
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(130,9): warning C4005: 'APIENTRY': macro redefinition
 D:\CPP Project\CPPProject\GuiManager.cpp(239,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  CPPProject.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(130,9): warning C4005: 'APIENTRY': macro redefinition
+  DataManager.cpp
+  imgui_impl_glfw.cpp
+  imgui_impl_opengl3.cpp
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  Generating Code...
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   CPPProject.vcxproj -> D:\CPP Project\CPPProject\x64\Debug\CPPProject.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
