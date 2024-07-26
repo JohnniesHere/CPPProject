@@ -387,15 +387,6 @@ void GUIManager::RenderChampionsWindow() {
         ImGui::Text("HP Regen: %.1f (+ %.1f per level)", stats["hpregen"].get<float>(), stats["hpregenperlevel"].get<float>());
 
         ImGui::EndChild();
-
-        // Display champion lore
-        ImGui::SetCursorPos(ImVec2(320, 120));  // Adjust position as needed
-        ImGui::BeginChild("ChampionLore", ImVec2(ImGui::GetWindowWidth() - 330, 200), true, ImGuiWindowFlags_HorizontalScrollbar);
-
-
-        ImGui::TextWrapped("%s", lore.c_str());
-
-        ImGui::EndChild();
     }
 }
 
