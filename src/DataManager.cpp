@@ -93,3 +93,6 @@ nlohmann::json DataManager::GetChampionPassive(const std::string& championName) 
     return specificChampionData.at(championId)["data"][championId]["passive"];
 }
 
+nlohmann::json DataManager::GetChampionData(const std::string& championId) const {
+    return championData["data"][championId];
+}
