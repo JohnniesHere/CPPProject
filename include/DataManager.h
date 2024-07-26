@@ -21,6 +21,7 @@ public:
     std::vector<std::string> GetChampionTags(const std::string& championName) const;
     nlohmann::json GetChampionSpells(const std::string& championName) const;
     nlohmann::json GetChampionPassive(const std::string& championName) const;
+    nlohmann::json GetChampionData(const std::string& championId) const;
 
 private:
     mutable httplib::Client client;
