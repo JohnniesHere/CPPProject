@@ -65,5 +65,4 @@ private:
     GLuint iconTexture;
     bool isIconLoaded;
 
-
 };

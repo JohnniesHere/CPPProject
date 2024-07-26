@@ -4,19 +4,10 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.vcxproj.filters
 
-# Build results
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
+# Specific VS folder
+.vs/CPPProject/v17/
 
 # Visual C++ cache files
 ipch/
@@ -28,3 +19,30 @@ ipch/
 *.cachefile
 *.VC.db
 *.VC.VC.opendb
+
+# Binary and object files
+*.exe
+*.obj
+*.dll
+*.pdb
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio Code files
+.vscode/
+
+# User-specific files
+*.rsuser
