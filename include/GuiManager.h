@@ -51,6 +51,8 @@ private:
 
     bool isChampionSplashLoaded;
     bool LoadIconTexture(const char* filename);
+    void LoadSkillIcons(const std::string& championId);
+    void LoadSkillIcon(const std::string& iconFilename, int index);
     bool isChampionIconLoaded;
     void LoadChampionSplash(const std::string& championName);
     void LoadChampionIcon(const std::string& championName);
@@ -64,5 +66,7 @@ private:
     static void WindowResizeCallback(GLFWwindow* window, int width, int height);
     GLuint iconTexture;
     bool isIconLoaded;
+    std::vector<GLuint> skillTextures;
+    bool areSkillIconsLoaded;
 
 };
