@@ -11,6 +11,8 @@ public:
     bool FetchChampionData();
     const std::vector<std::string>& GetChampionNames() const;
     std::string GetChampionImageUrl(const std::string& championName) const;
+    std::string GetChampionIconUrl(const std::string& championName) const;
+    nlohmann::json GetChampionStats(const std::string& championName) const;
 
 private:
     httplib::Client client;

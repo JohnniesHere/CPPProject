@@ -28,3 +28,11 @@ const std::vector<std::string>& DataManager::GetChampionNames() const {
 std::string DataManager::GetChampionImageUrl(const std::string& championName) const {
     return "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/" + championName + "_0.jpg";
 }
+
+std::string DataManager::GetChampionIconUrl(const std::string& championName) const {
+    return "http://ddragon.leagueoflegends.com/cdn/13.1.1/img/champion/" + championName + ".png";
+}
+
+nlohmann::json DataManager::GetChampionStats(const std::string& championName) const {
+    return championData["data"][championName]["stats"];
+}
