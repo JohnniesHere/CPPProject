@@ -16,10 +16,17 @@ static void glfw_error_callback(int error, const char* description)
 }
 
 GUIManager::GUIManager()
-    : window(nullptr), backgroundTexture(0), championSplashTexture(0),
-    windowOffset(10.0f), currentState(WindowState::Default),
-    selectedChampionIndex(-1), isChampionSplashLoaded(false), iconTexture(0)
-    , isIconLoaded(false) {}
+    : window(nullptr),
+    backgroundTexture(0),
+    championSplashTexture(0),
+    windowOffset(10.0f),
+    currentState(WindowState::Default),
+    selectedChampionIndex(-1),
+    isChampionSplashLoaded(false),
+    iconTexture(0),
+    isIconLoaded(false),
+    skillTextures(5, 0),
+    areSkillIconsLoaded(false) {}
 
 GUIManager::~GUIManager() {
     Cleanup();
@@ -112,6 +119,11 @@ void GUIManager::Cleanup() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+    for (auto& texture : skillTextures) {
+        if (texture != 0) {
+            glDeleteTextures(1, &texture);
+        }
+    }
     glfwDestroyWindow(window);
     glfwTerminate();
 }
@@ -332,6 +344,7 @@ void GUIManager::RenderChampionsWindow() {
                 std::string championId = dataManager.GetChampionId(championNames[i]);
                 LoadChampionSplash(championId);
                 LoadChampionIcon(championId);
+                areSkillIconsLoaded = false;
             }
             if (is_selected)
                 ImGui::SetItemDefaultFocus();
@@ -390,12 +403,26 @@ void GUIManager::RenderChampionsWindow() {
 
         // Display champion lore
         ImGui::SetCursorPos(ImVec2(320, 120));  // Adjust position as needed
-        ImGui::BeginChild("ChampionLore", ImVec2(ImGui::GetWindowWidth() - 330, 200), true, ImGuiWindowFlags_HorizontalScrollbar);
+        ImGui::BeginChild("ChampionLore", ImVec2(ImGui::GetWindowWidth() - 330, 100), true, ImGuiWindowFlags_HorizontalScrollbar);
 
         
         ImGui::TextWrapped("%s", lore.c_str());
 
         ImGui::EndChild();
+
+        // Load and display skill icons
+        if (!areSkillIconsLoaded) {
+            LoadSkillIcons(championId);
+        }
+
+        // Display skill icons
+        ImGui::SetCursorPos(ImVec2(320, 230));  // Adjust this position as needed
+        for (int i = 0; i < 5; ++i) {
+            if (skillTextures[i] != 0) {
+                ImGui::Image((void*)(intptr_t)skillTextures[i], ImVec2(64, 64));
+                ImGui::SameLine(0, 10);  // Add some spacing between icons
+            }
+        }
     }
 }
 
@@ -515,4 +542,58 @@ bool GUIManager::LoadIconTexture(const char* filename) {
     stbi_image_free(image);
     isIconLoaded = true;
     return true;
+}
+
+void GUIManager::LoadSkillIcons(const std::string& championId) {
+    auto spells = dataManager.GetChampionSpells(championId);
+    auto passive = dataManager.GetChampionPassive(championId);
+
+    // Load passive icon
+    LoadSkillIcon(passive["image"]["full"], 0);
+
+    // Load skill icons
+    for (int i = 0; i < spells.size() && i < 4; ++i) {
+        LoadSkillIcon(spells[i]["image"]["full"], i + 1);
+    }
+
+    areSkillIconsLoaded = true;
+}
+
+void GUIManager::LoadSkillIcon(const std::string& iconFilename, int index) {
+    CURL* curl = curl_easy_init();
+    if (curl) {
+        std::string url = "http://ddragon.leagueoflegends.com/cdn/14.14.1/img/passive/" + iconFilename;
+        if (index > 0) {
+            url = "http://ddragon.leagueoflegends.com/cdn/14.14.1/img/spell/" + iconFilename;
+        }
+        std::string imageData;
+
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &imageData);
+
+        CURLcode res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        if (res == CURLE_OK) {
+            int width, height, channels;
+            unsigned char* image = stbi_load_from_memory(
+                reinterpret_cast<const unsigned char*>(imageData.data()),
+                imageData.size(), &width, &height, &channels, 4);
+
+            if (image) {
+                if (skillTextures[index] != 0) {
+                    glDeleteTextures(1, &skillTextures[index]);
+                }
+
+                glGenTextures(1, &skillTextures[index]);
+                glBindTexture(GL_TEXTURE_2D, skillTextures[index]);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+
+                stbi_image_free(image);
+            }
+        }
+    }
 }
