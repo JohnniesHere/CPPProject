@@ -56,8 +56,18 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
     ImGui::StyleColorsDark();
     ApplyCustomStyles();
 
+    // Load and set the custom font
+    ImGuiIO& io = ImGui::GetIO();
+    ImFont* font = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\CPPProject\\assets\\AovelSansRounded-rdDL.ttf", 18.0f);
+    if (font == nullptr) {
+        std::cerr << "Failed to load custom font" << std::endl;
+        return false;
+    }
+    io.FontDefault = font;
+
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
+ 
 
     backgroundTexture = LoadTexture("D:\\CPP Project\\CPPProject\\assets\\image.png");
 
@@ -251,7 +261,7 @@ void GUIManager::RenderGUI() {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.5f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.5f, 0.5f, 0.5f));
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+    // Remove: ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
 
     if (ImGui::Button("--", ImVec2(25, 25)))
     {
@@ -263,7 +273,7 @@ void GUIManager::RenderGUI() {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 
-    ImGui::PopFont();
+    // Remove: ImGui::PopFont();
     ImGui::PopStyleColor(3);
     ImGui::PopStyleVar();
 
@@ -506,20 +516,7 @@ size_t GUIManager::WriteCallback(void* contents, size_t size, size_t nmemb, void
     return size * nmemb;
 }
 
-void GUIManager::CreateBoldFont() {
-    ImGuiIO& io = ImGui::GetIO();
-    ImFontConfig config;
-    config.FontDataOwnedByAtlas = false;
-    config.MergeMode = false;
-    config.PixelSnapH = true;
-    config.OversampleH = 1;
-    config.OversampleV = 1;
-    config.GlyphExtraSpacing.x = 1.0f;
-    config.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_Bold;
 
-    // Load a bold font (you may need to adjust the path)
-    io.Fonts->AddFontFromFileTTF("path/to/your/bold/font.ttf", 18.0f, &config);
-}
 
 void GUIManager::WindowResizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
