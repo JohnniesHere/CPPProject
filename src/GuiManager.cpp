@@ -330,8 +330,9 @@ void GUIManager::RenderChampionsWindow() {
             bool is_selected = (selectedChampionIndex == i);
             if (ImGui::Selectable(championNames[i].c_str(), is_selected)) {
                 selectedChampionIndex = i;
-                LoadChampionSplash(championNames[i]);
-                LoadChampionIcon(championNames[i]);
+                std::string championId = dataManager.GetChampionId(championNames[i]);
+                LoadChampionSplash(championId);
+                LoadChampionIcon(championId);
             }
             if (is_selected)
                 ImGui::SetItemDefaultFocus();
@@ -352,6 +353,7 @@ void GUIManager::RenderChampionsWindow() {
 
     if (selectedChampionIndex >= 0) {
         std::string championName = championNames[selectedChampionIndex];
+        std::string championId = dataManager.GetChampionId(championName);
 
         // Display champion icon
         if (isChampionIconLoaded) {
@@ -359,13 +361,22 @@ void GUIManager::RenderChampionsWindow() {
             ImGui::Image((void*)(intptr_t)championIconTexture, ImVec2(64, 64));
         }
 
-        // Display champion stats
+        // Display champion info
         ImGui::SetCursorPos(ImVec2(10, 120));
-        ImGui::BeginChild("ChampionStats", ImVec2(300, 300), true, ImGuiWindowFlags_NoScrollbar);
+        ImGui::BeginChild("ChampionInfo", ImVec2(300, 500), true, ImGuiWindowFlags_NoScrollbar);
 
         nlohmann::json stats = dataManager.GetChampionStats(championName);
+        std::string title = dataManager.GetChampionTitle(championName);
+        std::string lore = dataManager.GetChampionLore(championName);
+        auto tags = dataManager.GetChampionTags(championName);
 
         ImGui::Text("Champion: %s", championName.c_str());
+        ImGui::Text("Title: %s", title.c_str());
+        ImGui::Text("Tags: ");
+        for (const auto& tag : tags) {
+            ImGui::SameLine();
+            ImGui::Text("%s", tag.c_str());
+        }
         ImGui::Text("Base Stats:");
         ImGui::Text("HP: %.0f (+ %.0f per level)", stats["hp"].get<float>(), stats["hpperlevel"].get<float>());
         ImGui::Text("Armor: %.1f (+ %.2f per level)", stats["armor"].get<float>(), stats["armorperlevel"].get<float>());
