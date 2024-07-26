@@ -198,7 +198,7 @@ void GUIManager::RenderChampionsWindow() {
     const auto& championNames = dataManager.GetChampionNames();
 
     // Add drop-down menu for champion selection
-    if (ImGui::BeginCombo("Select Champion", selectedChampionIndex >= 0 ? championNames[selectedChampionIndex].c_str() : "Select a champion")) {
+    if (ImGui::BeginCombo("Select Champion", selectedChampionIndex >= 0 ? championNames[selectedChampionIndex].c_str() : "Select a champion" /* << optional bug causing text to appear on the right */)) {
         for (int i = 0; i < championNames.size(); i++) {
             bool is_selected = (selectedChampionIndex == i);
             if (ImGui::Selectable(championNames[i].c_str(), is_selected)) {
