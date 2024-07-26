@@ -4,13 +4,13 @@ D:\CPP Project\CPPProject\src\GuiManager.cpp(49,32): warning C4244: 'argument': 
 D:\CPP Project\CPPProject\src\GuiManager.cpp(49,25): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
 D:\CPP Project\CPPProject\src\GuiManager.cpp(111,49): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
 D:\CPP Project\CPPProject\src\GuiManager.cpp(111,36): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(219,49): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(219,36): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(254,59): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(254,45): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(456,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(494,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(579,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\CPP Project\CPPProject\src\GuiManager.cpp(222,49): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\CPP Project\CPPProject\src\GuiManager.cpp(222,36): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\CPP Project\CPPProject\src\GuiManager.cpp(257,59): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\CPP Project\CPPProject\src\GuiManager.cpp(257,45): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\CPP Project\CPPProject\src\GuiManager.cpp(459,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\CPP Project\CPPProject\src\GuiManager.cpp(497,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\CPP Project\CPPProject\src\GuiManager.cpp(582,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
   CPPProject.vcxproj -> D:\CPP Project\CPPProject\x64\Debug\CPPProject.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
