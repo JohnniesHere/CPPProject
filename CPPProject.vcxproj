@@ -140,9 +140,9 @@ shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GuiManager.cpp" />
     <ClCompile Include="src\CPPProject.cpp" />
     <ClCompile Include="src\DataManager.cpp" />
+    <ClCompile Include="src\GuiManager.cpp" />
     <ClCompile Include="third_party\imgui-1.90.8\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="third_party\imgui-1.90.8\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="third_party\imgui-1.90.8\imgui.cpp" />
@@ -152,8 +152,8 @@ shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <ClCompile Include="third_party\imgui-1.90.8\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GuiManager.h" />
     <ClInclude Include="include\DataManager.h" />
+    <ClInclude Include="include\GuiManager.h" />
     <ClInclude Include="third_party\httplib.h" />
     <ClInclude Include="third_party\imgui-1.90.8\backends\imgui_impl_glfw.h" />
     <ClInclude Include="third_party\imgui-1.90.8\backends\imgui_impl_opengl3.h" />
