@@ -4,6 +4,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <curl/curl.h>
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#include <Windows.h>
+#include <misc/freetype/imgui_freetype.h>
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -24,12 +29,24 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
     if (!glfwInit())
         return false;
 
+    // Add this line to create a borderless window
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+
     window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (window == NULL)
         return false;
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
+
+    HWND hwnd = glfwGetWin32Window(window);
+    DWORD style = GetWindowLong(hwnd, GWL_STYLE);
+    style &= ~WS_OVERLAPPEDWINDOW;
+    style |= WS_POPUP;
+    SetWindowLong(hwnd, GWL_STYLE, style);
+
+    HRGN hRgn = CreateRoundRectRgn(0, 0, width, height, 20, 20);
+    SetWindowRgn(hwnd, hRgn, TRUE);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -55,6 +72,27 @@ void GUIManager::Render() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+
+    // Handle window dragging
+    if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
+    {
+        isDragging = true;
+        dragStartPos = ImGui::GetMousePos();
+    }
+    else if (ImGui::IsMouseReleased(0))
+    {
+        isDragging = false;
+    }
+
+    if (isDragging)
+    {
+        ImVec2 delta = ImVec2(ImGui::GetMousePos().x - dragStartPos.x, ImGui::GetMousePos().y - dragStartPos.y);
+
+        int x, y;
+        glfwGetWindowPos(window, &x, &y);
+        glfwSetWindowPos(window, x + delta.x, y + delta.y);
+        dragStartPos = ImGui::GetMousePos();
+    }
 
     RenderBackground();
     RenderGUI();
@@ -129,13 +167,41 @@ void GUIManager::RenderGUI() {
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
 
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 20.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
     ImGui::Begin("Full Window", nullptr,
         ImGuiWindowFlags_NoDecoration |
         ImGuiWindowFlags_NoMove |
         ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoSavedSettings);
+        ImGuiWindowFlags_NoSavedSettings |
+        ImGuiWindowFlags_NoBringToFrontOnFocus |
+        ImGuiWindowFlags_NoNavFocus);
+
+    // Add custom close and minimize buttons
+    ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() - 60, 5));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.5f, 0.5f, 0.5f));
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+
+    if (ImGui::Button("--", ImVec2(25, 25)))
+    {
+        glfwIconifyWindow(window);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("X", ImVec2(25, 25)))
+    {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+
+    ImGui::PopFont();
+    ImGui::PopStyleColor(3);
+    ImGui::PopStyleVar();
 
     // Render buttons
+    ImGui::SetCursorPos(ImVec2(10, 10));  // Adjust position as needed
     ImGui::Text("H&J");
     ImGui::SameLine();
     if (ImGui::Button("Champions")) {
@@ -180,6 +246,7 @@ void GUIManager::RenderGUI() {
     ImGui::EndChild();
 
     ImGui::End();
+    ImGui::PopStyleVar(2);
 }
 
 void GUIManager::RenderDefaultWindow() {
@@ -259,4 +326,19 @@ void GUIManager::LoadChampionSplash(const std::string& championName) {
 size_t GUIManager::WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     ((std::string*)userp)->append((char*)contents, size * nmemb);
     return size * nmemb;
+}
+
+void GUIManager::CreateBoldFont() {
+    ImGuiIO& io = ImGui::GetIO();
+    ImFontConfig config;
+    config.FontDataOwnedByAtlas = false;
+    config.MergeMode = false;
+    config.PixelSnapH = true;
+    config.OversampleH = 1;
+    config.OversampleV = 1;
+    config.GlyphExtraSpacing.x = 1.0f;
+    config.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_Bold;
+
+    // Load a bold font (you may need to adjust the path)
+    io.Fonts->AddFontFromFileTTF("path/to/your/bold/font.ttf", 18.0f, &config);
 }
