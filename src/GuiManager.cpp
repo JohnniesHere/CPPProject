@@ -18,7 +18,8 @@ static void glfw_error_callback(int error, const char* description)
 GUIManager::GUIManager()
     : window(nullptr), backgroundTexture(0), championSplashTexture(0),
     windowOffset(10.0f), currentState(WindowState::Default),
-    selectedChampionIndex(-1), isChampionSplashLoaded(false) {}
+    selectedChampionIndex(-1), isChampionSplashLoaded(false), iconTexture(0)
+    , isIconLoaded(false) {}
 
 GUIManager::~GUIManager() {
     Cleanup();
@@ -42,16 +43,6 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 
     // Set the resize callback
     glfwSetWindowSizeCallback(window, WindowResizeCallback);
-    /*
-    HWND hwnd = glfwGetWin32Window(window);
-    DWORD style = GetWindowLong(hwnd, GWL_STYLE);
-    style &= ~WS_OVERLAPPEDWINDOW;
-    style |= WS_POPUP;
-    SetWindowLong(hwnd, GWL_STYLE, style);
-
-    HRGN hRgn = CreateRoundRectRgn(0, 0, width, height, 20, 20);
-    SetWindowRgn(hwnd, hRgn, TRUE);
-    */
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -66,6 +57,11 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
     if (!dataManager.FetchChampionData()) {
         std::cerr << "Failed to fetch champion data" << std::endl;
         return false;
+    }
+
+    if (!LoadIconTexture("D:\\CPP Project\\CPPProject\\assets\\icon.png")) {
+        std::cerr << "Failed to load icon texture" << std::endl;
+        // Decide if you want to return false here or continue without the icon
     }
 
     return true;
@@ -260,8 +256,11 @@ void GUIManager::RenderGUI() {
     ImGui::PopStyleVar();
 
     // Render buttons
-    ImGui::SetCursorPos(ImVec2(10, 10));  // Adjust position as needed
-    ImGui::Text("H&J");
+    if (isIconLoaded) {
+        ImGui::SetCursorPos(ImVec2(10, 10));  // Adjust position as needed
+        ImGui::Image((void*)(intptr_t)iconTexture, ImVec2(32, 32));  // Adjust size as needed
+    }
+
     ImGui::SameLine();
     if (ImGui::Button("Champions")) {
         currentState = WindowState::Champions;
@@ -488,4 +487,23 @@ void GUIManager::CreateBoldFont() {
 
 void GUIManager::WindowResizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+}
+
+bool GUIManager::LoadIconTexture(const char* filename) {
+    int width, height, channels;
+    unsigned char* image = stbi_load(filename, &width, &height, &channels, 4);
+    if (image == nullptr) {
+        std::cerr << "Failed to load icon image: " << filename << std::endl;
+        return false;
+    }
+
+    glGenTextures(1, &iconTexture);
+    glBindTexture(GL_TEXTURE_2D, iconTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+
+    stbi_image_free(image);
+    isIconLoaded = true;
+    return true;
 }
