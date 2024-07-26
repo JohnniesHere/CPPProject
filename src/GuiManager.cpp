@@ -198,7 +198,10 @@ void GUIManager::RenderGUI() {
         ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoSavedSettings |
         ImGuiWindowFlags_NoBringToFrontOnFocus |
-        ImGuiWindowFlags_NoNavFocus);
+        ImGuiWindowFlags_NoNavFocus |
+        ImGuiWindowFlags_NoScrollWithMouse);
+
+    
 
     // Handle dragging
     if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered())
