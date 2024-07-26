@@ -15,14 +15,19 @@ public:
     ~GUIManager();
 
     bool Initialize(int width, int height, const char* title);
-    void Render();
     bool ShouldClose();
+    void Render();
     void Cleanup();
     void SetWindowOffset(float offset) { windowOffset = offset; }
 
 private:
     GLFWwindow* window;
     GLuint backgroundTexture;
+    GLuint LoadTexture(const char* filename);
+    GLuint championSplashTexture;
+    GLuint championIconTexture;
+
+
     float buttonHeight;
     float windowOffset;
 
@@ -38,14 +43,14 @@ private:
     int selectedChampionIndex;
 
     void ApplyCustomStyles();
-    GLuint LoadTexture(const char* filename);
+    
     void RenderBackground();
     void RenderGUI();
     void RenderDefaultWindow();
     void RenderChampionsWindow();
-    GLuint championSplashTexture;
+
     bool isChampionSplashLoaded;
-    GLuint championIconTexture;
+    bool LoadIconTexture(const char* filename);
     bool isChampionIconLoaded;
     void LoadChampionSplash(const std::string& championName);
     void LoadChampionIcon(const std::string& championName);
@@ -57,5 +62,7 @@ private:
     ImVec2 windowSize;
     void CreateBoldFont();
     static void WindowResizeCallback(GLFWwindow* window, int width, int height);
+    GLuint iconTexture;
+    bool isIconLoaded;
 
 };
