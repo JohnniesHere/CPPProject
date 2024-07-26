@@ -5,6 +5,7 @@
 *.userosscache
 *.sln.docstates
 *.vcxproj.filters
+CPPProject/x64/Debug/*.log
 
 # Visual C++ cache files
 ipch/
