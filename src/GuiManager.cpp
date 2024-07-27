@@ -347,33 +347,52 @@ void GUIManager::RenderDefaultWindow() {
 void GUIManager::RenderChampionsWindow() {
     const auto& championNames = dataManager.GetChampionNames();
 
-    // Champion selection dropdown
-    if (ImGui::BeginCombo("##ChampionSelect", selectedChampionIndex >= 0 ? championNames[selectedChampionIndex].c_str() : "Select Champion")) {
-        for (int i = 0; i < championNames.size(); i++) {
-            bool is_selected = (selectedChampionIndex == i);
-            if (ImGui::Selectable(championNames[i].c_str(), is_selected)) {
-                if (selectedChampionIndex != i) {  // Check if a different champion is selected
-                    selectedChampionIndex = i;
-                    std::string championId = dataManager.GetChampionId(championNames[i]);
-                    LoadChampionSplash(championId);
-                    LoadChampionIcon(championId);
-                    areSkillIconsLoaded = false;
-                    selectedSkill = ""; // Reset selected skill when changing champion
-                    skillDescription = ""; // Clear skill description
+    // Champion selection dropdown with search
+    static char searchBuffer[256] = "";
+    ImGui::SetNextItemWidth(300); // Set the width of the combo box to 300 pixels
 
-                    // Reset tip-related states
-                    showAllyTip = false;
-                    showEnemyTip = false;
-                    allyTips.clear();
-                    enemyTips.clear();
-                    allyTipIndices.clear();
-                    enemyTipIndices.clear();
-                    currentAllyTipIndex = 0;
-                    currentEnemyTipIndex = 0;
+    if (ImGui::BeginCombo("##ChampionSelect", selectedChampionIndex >= 0 ? championNames[selectedChampionIndex].c_str() : "Select Champion")) {
+        // Add a search input field at the top of the combo box
+        ImGui::PushItemWidth(-1);
+        if (ImGui::InputText("##Search", searchBuffer, IM_ARRAYSIZE(searchBuffer))) {
+            // Convert search to lowercase for case-insensitive comparison
+            std::string search = searchBuffer;
+            std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+        }
+        ImGui::PopItemWidth();
+        ImGui::Separator();
+
+        for (int i = 0; i < championNames.size(); i++) {
+            // Convert champion name to lowercase for case-insensitive comparison
+            std::string lowerChampName = championNames[i];
+            std::transform(lowerChampName.begin(), lowerChampName.end(), lowerChampName.begin(), ::tolower);
+
+            // Only display champions that match the search
+            if (lowerChampName.find(searchBuffer) != std::string::npos) {
+                bool is_selected = (selectedChampionIndex == i);
+                if (ImGui::Selectable(championNames[i].c_str(), is_selected)) {
+                    if (selectedChampionIndex != i) {  // Check if a different champion is selected
+                        selectedChampionIndex = i;
+                        std::string championId = dataManager.GetChampionId(championNames[i]);
+                        LoadChampionSplash(championId);
+                        LoadChampionIcon(championId);
+                        areSkillIconsLoaded = false;
+                        selectedSkill = ""; // Reset selected skill when changing champion
+                        skillDescription = ""; // Clear skill description
+                        // Reset tip-related states
+                        showAllyTip = false;
+                        showEnemyTip = false;
+                        allyTips.clear();
+                        enemyTips.clear();
+                        allyTipIndices.clear();
+                        enemyTipIndices.clear();
+                        currentAllyTipIndex = 0;
+                        currentEnemyTipIndex = 0;
+                    }
                 }
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
             }
-            if (is_selected)
-                ImGui::SetItemDefaultFocus();
         }
         ImGui::EndCombo();
     }
