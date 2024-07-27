@@ -1,3 +1,7 @@
+# Debug files
+*.ilk
+*.pdb
+
 # Visual Studio files
 .vs/
 *.suo
