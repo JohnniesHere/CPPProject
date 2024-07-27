@@ -348,18 +348,29 @@ void GUIManager::RenderChampionsWindow() {
     const auto& championNames = dataManager.GetChampionNames();
 
     // Champion selection dropdown
-    ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.3f);
     if (ImGui::BeginCombo("##ChampionSelect", selectedChampionIndex >= 0 ? championNames[selectedChampionIndex].c_str() : "Select Champion")) {
         for (int i = 0; i < championNames.size(); i++) {
             bool is_selected = (selectedChampionIndex == i);
             if (ImGui::Selectable(championNames[i].c_str(), is_selected)) {
-                selectedChampionIndex = i;
-                std::string championId = dataManager.GetChampionId(championNames[i]);
-                LoadChampionSplash(championId);
-                LoadChampionIcon(championId);
-                areSkillIconsLoaded = false;
-                selectedSkill = ""; // Reset selected skill when changing champion
-                skillDescription = ""; // Clear skill description
+                if (selectedChampionIndex != i) {  // Check if a different champion is selected
+                    selectedChampionIndex = i;
+                    std::string championId = dataManager.GetChampionId(championNames[i]);
+                    LoadChampionSplash(championId);
+                    LoadChampionIcon(championId);
+                    areSkillIconsLoaded = false;
+                    selectedSkill = ""; // Reset selected skill when changing champion
+                    skillDescription = ""; // Clear skill description
+
+                    // Reset tip-related states
+                    showAllyTip = false;
+                    showEnemyTip = false;
+                    allyTips.clear();
+                    enemyTips.clear();
+                    allyTipIndices.clear();
+                    enemyTipIndices.clear();
+                    currentAllyTipIndex = 0;
+                    currentEnemyTipIndex = 0;
+                }
             }
             if (is_selected)
                 ImGui::SetItemDefaultFocus();
@@ -438,16 +449,34 @@ void GUIManager::RenderChampionsWindow() {
             if (skillTextures[i] != 0) {
                 ImGui::Image((void*)(intptr_t)skillTextures[i], ImVec2(75, 75));
             }
-            std::string buttonLabel = (i == 0) ? "Passive" : skillNames[i] + " Abillity";
+            std::string buttonLabel = (i == 0) ? "Passive" : skillNames[i] + " Ability";
+
+            // Check if this skill is currently selected
+            bool isSelected = (selectedSkill == (i == 0 ? "Passive" : championId + " " + skillNames[i]));
+
+            // Use PushStyleColor to change button color if selected
+            if (isSelected) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.7f, 0.2f, 1.0f)); // Green color for selected skill
+            }
+
             if (ImGui::Button(buttonLabel.c_str(), ImVec2(75, 35))) {
-                if (buttonLabel == "Passive") {
-                    selectedSkill = buttonLabel;
+                if (isSelected) {
+                    // If already selected, deselect it
+                    selectedSkill = "";
+                    skillDescription = "";
                 }
                 else {
-                    selectedSkill = championName + " " + skillNames[i];
+                    // Select this skill
+                    selectedSkill = (i == 0) ? "Passive" : championId + " " + skillNames[i];
+                    skillDescription = skillDescriptions[selectedSkill];
                 }
-                skillDescription = skillDescriptions[selectedSkill];
             }
+
+            // Pop the style color if we pushed it
+            if (isSelected) {
+                ImGui::PopStyleColor();
+            }
+
             ImGui::EndGroup();
             if (i < 4) ImGui::SameLine(0, 20);
         }
@@ -510,6 +539,72 @@ void GUIManager::RenderChampionsWindow() {
                     }
                 }
             }
+        }
+
+        // Add Ally Tip button
+        ImGui::SetCursorPos(ImVec2(650, 440));
+        if (ImGui::Button("Ally Tips")) {
+            showAllyTip = !showAllyTip;
+            if (showAllyTip && allyTips.empty()) {
+                allyTips = dataManager.GetChampionAllyTips(championName);
+                if (!allyTips.empty()) {
+                    RandomizeTips(allyTips, allyTipIndices);
+                    currentAllyTipIndex = 0;
+                }
+            }
+        }
+
+        if (showAllyTip) {
+            ImGui::SetCursorPos(ImVec2(650, 480));
+            if (!allyTips.empty()) {
+                if (ImGui::Button("Next Ally Tip")) {
+                    currentAllyTipIndex = (currentAllyTipIndex + 1) % allyTipIndices.size();
+                }
+            }
+
+            ImGui::SetCursorPos(ImVec2(780, 440));
+            ImGui::BeginChild("AllyTip", ImVec2(240, 90), true);
+            if (!allyTips.empty()) {
+                size_t index = allyTipIndices[currentAllyTipIndex];
+                ImGui::TextWrapped("%s", allyTips[index].c_str());
+            }
+            else {
+                ImGui::TextWrapped("No ally tips available for this champion.");
+            }
+            ImGui::EndChild();
+        }
+
+        // For Enemy Tips
+        ImGui::SetCursorPos(ImVec2(650, 535));
+        if (ImGui::Button("Enemy Tips")) {
+            showEnemyTip = !showEnemyTip;
+            if (showEnemyTip && enemyTips.empty()) {
+                enemyTips = dataManager.GetChampionEnemyTips(championName);
+                if (!enemyTips.empty()) {
+                    RandomizeTips(enemyTips, enemyTipIndices);
+                    currentEnemyTipIndex = 0;
+                }
+            }
+        }
+
+        if (showEnemyTip) {
+            ImGui::SetCursorPos(ImVec2(650, 575));
+            if (!enemyTips.empty()) {
+                if (ImGui::Button("Next Enemy Tip")) {
+                    currentEnemyTipIndex = (currentEnemyTipIndex + 1) % enemyTipIndices.size();
+                }
+            }
+
+            ImGui::SetCursorPos(ImVec2(780, 575));
+            ImGui::BeginChild("EnemyTip", ImVec2(240, 80), true);
+            if (!enemyTips.empty()) {
+                size_t index = enemyTipIndices[currentEnemyTipIndex];
+                ImGui::TextWrapped("%s", enemyTips[index].c_str());
+            }
+            else {
+                ImGui::TextWrapped("No enemy tips available for this champion.");
+            }
+            ImGui::EndChild();
         }
     }
 }
@@ -720,4 +815,16 @@ GLuint GUIManager::LoadSkinTexture(const std::string& url) {
         }
     }
     return texture;
+}
+
+void GUIManager::RandomizeTips(const std::vector<std::string>& tips, std::vector<size_t>& indices) {
+    std::lock_guard<std::mutex> lock(tipMutex);
+
+    indices.resize(tips.size());
+    std::iota(indices.begin(), indices.end(), 0);
+
+    std::random_device rd;
+    std::mt19937 g(rd());
+
+    std::shuffle(indices.begin(), indices.end(), g);
 }
