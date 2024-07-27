@@ -420,7 +420,7 @@ void GUIManager::RenderChampionsWindow() {
         ImGui::SetCursorPos(ImVec2(320, 120));  // Adjust position as needed
         ImGui::BeginChild("ChampionLore", ImVec2(ImGui::GetWindowWidth() - 330, 100), true, ImGuiWindowFlags_HorizontalScrollbar);
 
-        
+
         ImGui::TextWrapped("%s", lore.c_str());
 
         ImGui::EndChild();
@@ -459,7 +459,67 @@ void GUIManager::RenderChampionsWindow() {
             ImGui::TextWrapped("%s", skillDescription.c_str());
             ImGui::EndChild();
         }
+
+        // Add Skins button
+        ImGui::SetCursorPos(ImVec2(320, 440)); // Adjust this position as needed
+        if (ImGui::Button("Skins")) {
+            showSkins = !showSkins; // Toggle skins display
+            if (showSkins) {
+                currentSkinIndex = 0; // Reset to first skin when showing skins
+            }
+        }
+
+        // Display skins if showSkins is true
+        if (showSkins) {
+            auto skins = dataManager.GetChampionSkins(championName);
+            if (!skins.empty()) {
+                const auto& currentSkin = skins[currentSkinIndex];
+                std::string skinName = currentSkin["name"];
+                std::string skinNum = std::to_string(currentSkin["num"].get<int>());
+                std::string skinKey = championId + "_" + skinNum;
+
+                // Load skin texture if not already loaded
+                if (skinTextures.find(skinKey) == skinTextures.end()) {
+                    std::string skinImageUrl = dataManager.GetChampionSkinImageUrl(championId, skinNum);
+                    skinTextures[skinKey] = LoadSkinTexture(skinImageUrl);
+                }
+
+                // Display skin image
+                ImGui::SetCursorPos(ImVec2(400, 440)); // Adjust position as needed
+                ImGui::Image((void*)(intptr_t)skinTextures[skinKey], ImVec2(240, 136)); // Adjust size as needed
+
+                // Display skin name in a chat box style
+                ImGui::SetCursorPos(ImVec2(400, 580)); // Adjusted position
+                ImGui::BeginChild("SkinName", ImVec2(240, 40), true);
+                ImGui::Text("%s", skinName.c_str());
+                ImGui::EndChild();
+
+                // Navigation buttons outside the chat box
+                ImGui::SetCursorPos(ImVec2(400, 625)); // Adjusted position
+                if (currentSkinIndex > 0) {
+                    if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
+                        currentSkinIndex--;
+                    }
+                    ImGui::SameLine();
+                }
+
+                ImGui::SetCursorPos(ImVec2(605, 625)); // Adjusted position for right arrow
+                if (currentSkinIndex < skins.size() - 1) {
+                    if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
+                        currentSkinIndex++;
+                    }
+                }
+            }
+        }
     }
+}
+
+
+void GUIManager::CleanupSkinTextures() {
+    for (auto& pair : skinTextures) {
+        glDeleteTextures(1, &pair.second);
+    }
+    skinTextures.clear();
 }
 
 void GUIManager::LoadChampionSplash(const std::string& championName) {
@@ -623,4 +683,41 @@ void GUIManager::LoadSkillIcon(const std::string& iconFilename, int index) {
             }
         }
     }
+}
+
+GLuint GUIManager::LoadSkinTexture(const std::string& url) {
+    CURL* curl = curl_easy_init();
+    GLuint texture = 0;
+    if (curl) {
+        std::string imageData;
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &imageData);
+
+        CURLcode res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        if (res == CURLE_OK) {
+            int width, height, channels;
+            unsigned char* image = stbi_load_from_memory(
+                reinterpret_cast<const unsigned char*>(imageData.data()),
+                imageData.size(), &width, &height, &channels, 4);
+
+            if (image) {
+                glGenTextures(1, &texture);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+                stbi_image_free(image);
+            }
+            else {
+                std::cerr << "Failed to load skin image: " << url << std::endl;
+            }
+        }
+        else {
+            std::cerr << "Failed to download skin image: " << url << std::endl;
+        }
+    }
+    return texture;
 }

@@ -96,3 +96,13 @@ nlohmann::json DataManager::GetChampionPassive(const std::string& championName) 
 nlohmann::json DataManager::GetChampionData(const std::string& championId) const {
     return championData["data"][championId];
 }
+
+nlohmann::json DataManager::GetChampionSkins(const std::string& championName) const {
+    std::string championId = GetChampionId(championName);
+    FetchSpecificChampionData(championId);
+    return specificChampionData.at(championId)["data"][championId]["skins"];
+}
+
+std::string DataManager::GetChampionSkinImageUrl(const std::string& championId, const std::string& skinNum) const {
+    return "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/" + championId + "_" + skinNum + ".jpg";
+}

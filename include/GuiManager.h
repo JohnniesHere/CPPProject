@@ -49,10 +49,13 @@ private:
     void RenderDefaultWindow();
     void RenderChampionsWindow();
 
+    void CleanupSkinTextures();
+
     bool isChampionSplashLoaded;
     bool LoadIconTexture(const char* filename);
     void LoadSkillIcons(const std::string& championId);
     void LoadSkillIcon(const std::string& iconFilename, int index);
+    GLuint LoadSkinTexture(const std::string& url);
     bool isChampionIconLoaded;
     void LoadChampionSplash(const std::string& championName);
     void LoadChampionIcon(const std::string& championName);
@@ -71,5 +74,8 @@ private:
     std::string selectedSkill;
     std::string skillDescription;
     std::map<std::string, std::string> skillDescriptions;
+    bool showSkins = false;
+    size_t currentSkinIndex = 0;
+    std::map<std::string, GLuint> skinTextures;
 
 };
