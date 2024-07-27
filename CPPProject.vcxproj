@@ -107,13 +107,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\CPP Project\CPPProject\third_party\nlohmann;D:\CPP Project\CPPProject\third_party\imgui-1.90.8;D:\CPP Project\CPPProject\third_party\glfw-3.4.bin.WIN64\include;D:\CPP Project\CPPProject\third_party\imgui-1.90.8\backends;D:\CPP Project\CPPProject\third_party;D:\CPP Project\CPPProject\include;$(VcpkgRoot)\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\CPP Project\CPPProject\third_party\nlohmann;D:\CPP Project\CPPProject\third_party\imgui-1.90.8;D:\CPP Project\CPPProject\third_party\glfw-3.4.bin.WIN64\include;D:\CPP Project\CPPProject\third_party\imgui-1.90.8\backends;D:\CPP Project\CPPProject\third_party;D:\CPP Project\CPPProject\include;D:\CPP Project\CPPProject\vcpkg_installed\x64-windows\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\CPP Project\CPPProject\third_party\glfw-3.4.bin.WIN64\lib-vc2022;$(VcpkgRoot)\installed\x64-windows\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\CPP Project\CPPProject\third_party\glfw-3.4.bin.WIN64\lib-vc2022;D:\CPP Project\CPPProject\vcpkg_installed\x64-windows\x64-windows\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;gdi32.lib;shell32.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
