@@ -22,6 +22,8 @@ public:
     nlohmann::json GetChampionSpells(const std::string& championName) const;
     nlohmann::json GetChampionPassive(const std::string& championName) const;
     nlohmann::json GetChampionData(const std::string& championId) const;
+    nlohmann::json GetChampionSkins(const std::string& championName) const;
+    std::string GetChampionSkinImageUrl(const std::string& championId, const std::string& skinNum) const;
 
 private:
     mutable httplib::Client client;
