@@ -1,4 +1,4 @@
-#include "GUIManager.h"
+﻿#include "GUIManager.h"
 #include "nlohmann/json.hpp"
 #include <fstream>
 #define STB_IMAGE_IMPLEMENTATION
@@ -191,6 +191,9 @@ void GUIManager::RenderGUI() {
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+    ImColor separatorColor(ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Adjust color as needed
 
     ImGui::Begin("Full Window", nullptr,
         ImGuiWindowFlags_NoDecoration |
@@ -201,21 +204,93 @@ void GUIManager::RenderGUI() {
         ImGuiWindowFlags_NoNavFocus |
         ImGuiWindowFlags_NoScrollWithMouse);
 
-    
+    float windowWidth = ImGui::GetWindowWidth();
+    float buttonHeight = 30.0f; // Adjust as needed
+    float logoWidth = 32.0f; // Width of your logo
+    float closeButtonsWidth = 60.0f; // Width of close and minimize buttons
+    float mainButtonsWidth = windowWidth - logoWidth - closeButtonsWidth;
+    float sectionWidth = mainButtonsWidth / 3.0f;
+    float separatorThickness = 0.5f; // Adjust this value to make the line thicker or thinner
 
-    // Handle dragging
-    if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered())
-    {
+    // Logo
+    ImGui::SetCursorPos(ImVec2(0, 0));
+    if (isIconLoaded) {
+        ImGui::Image((void*)(intptr_t)iconTexture, ImVec2(logoWidth, buttonHeight));
+    }
+
+
+    // Push custom styles for main buttons
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0706f, 0.0706f, 0.0706f, 0.2f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.1412f, 0.1412f, 0.1412f, 0.4f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
+
+    // Champions button
+    ImGui::SetCursorPos(ImVec2(logoWidth + separatorThickness, 0));
+    if (ImGui::Button("Champions", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
+        currentState = WindowState::Champions;
+    }
+
+
+    // Items button
+    ImGui::SetCursorPos(ImVec2(logoWidth + sectionWidth + separatorThickness, 0));
+    if (ImGui::Button("Items", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
+        currentState = WindowState::Items;
+    }
+
+
+    // Summoner's Spells button
+    ImGui::SetCursorPos(ImVec2(logoWidth + sectionWidth * 2 + separatorThickness, 0));
+    if (ImGui::Button("Summoner's Spells", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
+        currentState = WindowState::SummonerSpells;
+    }
+
+    ImGui::PopStyleColor(3);
+    ImGui::PopStyleVar();
+
+    // Draw separator before close buttons
+    ImGui::GetWindowDrawList()->AddRectFilled(
+        ImVec2(windowWidth - closeButtonsWidth - separatorThickness, 0),
+        ImVec2(windowWidth - closeButtonsWidth, buttonHeight),
+        separatorColor
+    );
+
+    // Close and minimize buttons
+    ImGui::SetCursorPos(ImVec2(windowWidth - closeButtonsWidth, 0));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.5f, 0.5f, 0.5f));
+
+    // Horizontal separator below all buttons
+    ImGui::GetWindowDrawList()->AddLine(
+        ImVec2(0, buttonHeight),
+        ImVec2(windowWidth, buttonHeight),
+        separatorColor
+    );
+
+
+    if (ImGui::Button("--", ImVec2(30, buttonHeight))) {
+        glfwIconifyWindow(window);
+    }
+    ImGui::SameLine(0, 0);
+    if (ImGui::Button("X", ImVec2(30, buttonHeight))) {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+
+    ImGui::PopStyleColor(3);
+    ImGui::PopStyleVar();
+
+    // Handle dragging (allow dragging from the top bar)
+    if (ImGui::IsMouseClicked(0) && ImGui::IsMouseHoveringRect(ImVec2(0, 0), ImVec2(windowWidth, buttonHeight))) {
         isDragging = true;
         dragStartPos = ImGui::GetMousePos();
     }
-    else if (ImGui::IsMouseReleased(0))
-    {
+    else if (ImGui::IsMouseReleased(0)) {
         isDragging = false;
     }
 
-    if (isDragging)
-    {
+    if (isDragging) {
         ImVec2 delta = ImVec2(ImGui::GetMousePos().x - dragStartPos.x, ImGui::GetMousePos().y - dragStartPos.y);
         int x, y;
         glfwGetWindowPos(window, &x, &y);
@@ -234,23 +309,19 @@ void GUIManager::RenderGUI() {
         IM_COL32(200, 200, 200, 255));
 
     // Handle resizing
-    if (ImGui::IsMouseHoveringRect(resizeHandlePos, ImVec2(resizeHandlePos.x + 20, resizeHandlePos.y + 20)))
-    {
+    if (ImGui::IsMouseHoveringRect(resizeHandlePos, ImVec2(resizeHandlePos.x + 20, resizeHandlePos.y + 20))) {
         ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
-        if (ImGui::IsMouseClicked(0))
-        {
+        if (ImGui::IsMouseClicked(0)) {
             isResizing = true;
             resizeStartPos = ImGui::GetMousePos();
         }
     }
 
-    if (ImGui::IsMouseReleased(0))
-    {
+    if (ImGui::IsMouseReleased(0)) {
         isResizing = false;
     }
 
-    if (isResizing)
-    {
+    if (isResizing) {
         ImVec2 delta = ImVec2(ImGui::GetMousePos().x - resizeStartPos.x, ImGui::GetMousePos().y - resizeStartPos.y);
         windowSize.x += delta.x;
         windowSize.y += delta.y;
@@ -258,55 +329,9 @@ void GUIManager::RenderGUI() {
         resizeStartPos = ImGui::GetMousePos();
     }
 
-    // Add custom close and minimize buttons
-    ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() - 60, 5));
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.5f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.5f, 0.5f, 0.5f));
-    // Remove: ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
-
-    if (ImGui::Button("--", ImVec2(25, 25)))
-    {
-        glfwIconifyWindow(window);
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("X", ImVec2(25, 25)))
-    {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    }
-
-    // Remove: ImGui::PopFont();
-    ImGui::PopStyleColor(3);
-    ImGui::PopStyleVar();
-
-    // Render buttons
-    if (isIconLoaded) {
-        ImGui::SetCursorPos(ImVec2(10, 10));  // Adjust position as needed
-        ImGui::Image((void*)(intptr_t)iconTexture, ImVec2(32, 32));  // Adjust size as needed
-    }
-
-    ImGui::SameLine();
-    if (ImGui::Button("Champions")) {
-        currentState = WindowState::Champions;
-        std::cout << "Champions button clicked!" << std::endl;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Items")) {
-        currentState = WindowState::Items;
-        std::cout << "Items button clicked!" << std::endl;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Summoner's Spells")) {
-        currentState = WindowState::SummonerSpells;
-        std::cout << "Summoner's Spells button clicked!" << std::endl;
-    }
-
-    buttonHeight = ImGui::GetItemRectSize().y;
-
     // Render the appropriate window based on the current state
-    ImGui::SetCursorPos(ImVec2(0, buttonHeight + windowOffset));
-    ImGui::BeginChild("Content Window", ImVec2(viewport->Size.x, viewport->Size.y - buttonHeight - windowOffset), false,
+    ImGui::SetCursorPos(ImVec2(0, buttonHeight));
+    ImGui::BeginChild("Content Window", ImVec2(viewport->Size.x, viewport->Size.y - buttonHeight), false,
         ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
 
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0f, 0.0f, 0.0f, 0.5f));
@@ -317,7 +342,6 @@ void GUIManager::RenderGUI() {
         break;
     case WindowState::Items:
     case WindowState::SummonerSpells:
-        // TODO: Implement these windows
         ImGui::Text("This feature is not implemented yet.");
         break;
     default:
@@ -329,7 +353,7 @@ void GUIManager::RenderGUI() {
     ImGui::EndChild();
 
     ImGui::End();
-    ImGui::PopStyleVar(2);
+    ImGui::PopStyleVar(3);
 }
 
 void GUIManager::RenderDefaultWindow() {
@@ -350,10 +374,11 @@ void GUIManager::RenderChampionsWindow() {
     // Champion selection dropdown with search
     static char searchBuffer[256] = "";
     ImGui::SetNextItemWidth(300); // Set the width of the combo box to 300 pixels
-
+    ImGui::SetCursorPos(ImVec2(10, 5));
     if (ImGui::BeginCombo("##ChampionSelect", selectedChampionIndex >= 0 ? championNames[selectedChampionIndex].c_str() : "Select Champion")) {
         // Add a search input field at the top of the combo box
         ImGui::PushItemWidth(-1);
+        ImGui::SetCursorPos(ImVec2(10, 10));
         if (ImGui::InputText("##Search", searchBuffer, IM_ARRAYSIZE(searchBuffer))) {
             // Convert search to lowercase for case-insensitive comparison
             std::string search = searchBuffer;
@@ -533,17 +558,17 @@ void GUIManager::RenderChampionsWindow() {
                 }
 
                 // Display skin image
-                ImGui::SetCursorPos(ImVec2(400, 440)); // Adjust position as needed
+                ImGui::SetCursorPos(ImVec2(390, 440)); // Adjust position as needed
                 ImGui::Image((void*)(intptr_t)skinTextures[skinKey], ImVec2(240, 136)); // Adjust size as needed
 
                 // Display skin name in a chat box style
-                ImGui::SetCursorPos(ImVec2(400, 580)); // Adjusted position
+                ImGui::SetCursorPos(ImVec2(390, 580)); // Adjusted position
                 ImGui::BeginChild("SkinName", ImVec2(240, 40), true);
                 ImGui::Text("%s", skinName.c_str());
                 ImGui::EndChild();
 
                 // Navigation buttons outside the chat box
-                ImGui::SetCursorPos(ImVec2(400, 625)); // Adjusted position
+                ImGui::SetCursorPos(ImVec2(390, 625)); // Adjusted position
                 if (currentSkinIndex > 0) {
                     if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
                         currentSkinIndex--;
@@ -551,7 +576,7 @@ void GUIManager::RenderChampionsWindow() {
                     ImGui::SameLine();
                 }
 
-                ImGui::SetCursorPos(ImVec2(605, 625)); // Adjusted position for right arrow
+                ImGui::SetCursorPos(ImVec2(595, 625)); // Adjusted position for right arrow
                 if (currentSkinIndex < skins.size() - 1) {
                     if (ImGui::ArrowButton("##right", ImGuiDir_Right)) {
                         currentSkinIndex++;
