@@ -106,3 +106,15 @@ nlohmann::json DataManager::GetChampionSkins(const std::string& championName) co
 std::string DataManager::GetChampionSkinImageUrl(const std::string& championId, const std::string& skinNum) const {
     return "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/" + championId + "_" + skinNum + ".jpg";
 }
+
+std::vector<std::string> DataManager::GetChampionAllyTips(const std::string& championName) const {
+    std::string championId = GetChampionId(championName);
+    FetchSpecificChampionData(championId);
+    return specificChampionData.at(championId)["data"][championId]["allytips"].get<std::vector<std::string>>();
+}
+
+std::vector<std::string> DataManager::GetChampionEnemyTips(const std::string& championName) const {
+    std::string championId = GetChampionId(championName);
+    FetchSpecificChampionData(championId);
+    return specificChampionData.at(championId)["data"][championId]["enemytips"].get<std::vector<std::string>>();
+}

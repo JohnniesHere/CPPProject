@@ -8,6 +8,11 @@
 #include <vector>
 #include <string>
 #include "DataManager.h"
+#include <atomic>
+#include <thread>
+#include <mutex>
+#include <random>
+#include <algorithm>
 
 class GUIManager {
 public:
@@ -56,6 +61,7 @@ private:
     void LoadSkillIcons(const std::string& championId);
     void LoadSkillIcon(const std::string& iconFilename, int index);
     GLuint LoadSkinTexture(const std::string& url);
+    void RandomizeTips(const std::vector<std::string>& tips, std::vector<size_t>& indices);
     bool isChampionIconLoaded;
     void LoadChampionSplash(const std::string& championName);
     void LoadChampionIcon(const std::string& championName);
@@ -77,5 +83,17 @@ private:
     bool showSkins = false;
     size_t currentSkinIndex = 0;
     std::map<std::string, GLuint> skinTextures;
-
+    std::vector<std::string> allyTips;
+    std::vector<std::string> enemyTips;
+    std::vector<size_t> tipIndices;
+    size_t currentTipIndex;
+    std::mutex tipMutex;
+    bool showAllyTip = false;
+    std::mt19937 rng;  // Random number generator
+    bool showEnemyTip = false;
+    std::vector<size_t> allyTipIndices;
+    std::vector<size_t> enemyTipIndices;
+    size_t currentAllyTipIndex = 0;
+    size_t currentEnemyTipIndex = 0;
+    
 };
