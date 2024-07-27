@@ -1,107 +1,61 @@
-# ImGui GLFW Project
+# GUI Application with OpenGL and Dear ImGui
 
-This project is a C++ application using Dear ImGui and GLFW.
+Authors: Jonathan Elgarisi & Hagi Debby
 
-## Prerequisites
+## GUI Application with OpenGL and Dear ImGui
 
-- Visual Studio 2022 (or compatible version)
-- C++17 or later
+This project demonstrates the creation of a graphical application using GLFW, OpenGL, and Dear ImGui. The application provides detailed information about League of Legends champions, items, and summoner spells, including images and text details fetched from JSON files.
 
-## Setup Instructions
+## Features
+- Initialize and manage a GLFW window.
+- Render GUI elements using Dear ImGui.
+- Load and display textures.
+- Fetch and display data from the League of Legends API using nlohmann::json and httplib.
+- Implement custom styles for GUI elements.
+- Display detailed information about champions, items, and summoner spells, including images and textual descriptions.
 
-1. Clone or download this repository to your local machine.
+## Third-Party Libraries Used
+- [GLFW](https://www.glfw.org/): For creating and managing windows, OpenGL contexts, and input.
+- [OpenGL](https://www.opengl.org/): For rendering graphics.
+- [Dear ImGui](https://github.com/ocornut/imgui): For creating graphical user interfaces.
+- [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h): For loading images.
+- [curl](https://curl.se/libcurl/): For fetching data from the web.
+- [nlohmann::json](https://github.com/nlohmann/json): For parsing JSON data.
+- [httplib](https://github.com/yhirose/cpp-httplib): For making HTTP requests.
 
-2. Open the solution file (.sln) in Visual Studio.
+## How to Run
 
-3. The project is set up to use the following third-party libraries:
-   - Dear ImGui
-   - GLFW 
-   - nlohmann JSON 
+## How to Use
 
-   These libraries are included in the `CPPProject` folder.
+ATM, just complie and run it using the .sln
 
-4. If the libraries are not detected automatically, you may need to set up the include and library directories:
+### Initialization
 
-   a) Right-click on the project in Solution Explorer and select "Properties"
-   b) Go to C/C++ > General > Additional Include Directories
-   c) Add these paths (adjust if necessary):
-      - $(ProjectDir)CPPProject\imgui
-      - $(ProjectDir)CPPProject\glfw-3.3.8.bin.WIN64\include
-      - $(ProjectDir)CPPProject
+WIP
 
-   d) Go to Linker > General > Additional Library Directories
-   e) Add this path (adjust if necessary):
-      - $(ProjectDir)CPPProject\glfw-3.3.8.bin.WIN64\lib-vc2022
+## Functions
 
-5. Ensure the following libraries are linked:
-   - glfw3.lib
-   - opengl32.lib
-   - gdi32.lib
-   - shell32.lib
+WIP
 
-   You can check this in Project Properties > Linker > Input > Additional Dependencies
+## Input
 
-6. Build the solution (F7 or Build > Build Solution)
+WIP
 
-7. Run the program (F5 or Debug > Start Debugging)
+## Output
 
-## Troubleshooting
+The program outputs the GUI elements and data fetched from the League of Legends API. It provides visual feedback and interactions through the GUI window.
 
-- If you encounter any "cannot open source file" errors, double-check your include directories.
-- For linker errors, verify that all required libraries are correctly linked.
-- Make sure you're using a compatible version of Visual Studio and have the C++ desktop development workload installed.
+## Files
+- `CPPProject.cpp`: Contains the main function to initialize and run the GUI application.
+- `GuiManager.cpp`: Implementation of the GUI manager for handling the GUI window and rendering.
+- `GuiManager.h`: Header file for the GUI manager with class definitions and function signatures.
+- `DataManager.cpp`: Implementation of the data manager for fetching and processing data from the API.
+- `DataManager.h`: Header file for the data manager with class definitions and function signatures.
+- `run_me.sh`: A script to compile and run the program.
+- `README.txt`: The text file you are currently reading.
 
-## Collaborating via GitHub
+## License
 
-To collaborate on this project using GitHub, follow these steps:
+MIT - https://choosealicense.com/licenses/mit/
 
-
-1. Access to the Repository:
-   - The project owner will need to add you as a collaborator.
-   - Check your email for an invitation to collaborate and accept it.
-
-2. Clone the Repository:
-   - Open Git Bash or your preferred Git client
-   - Run: `git clone https://github.com/JohnniesHere/ImGui-JSON-project.git`
-
-3. Create a Branch:
-   - Navigate to the project directory: `cd ImGui-JSON-project`
-   - Create and switch to a new branch: `git checkout -b [your-branch-name]`
-   - Use a descriptive name for your branch, e.g., `feature-user-authentication`
-
-5. Make Changes:
-   - Make your changes to the code using Visual Studio
-
-6. Commit Changes:
-   - Stage your changes: `git add .`
-   - Commit your changes: `git commit -m "Descriptive commit message"`
-
-7. Push Changes:
-   - Push your branch to GitHub: `git push origin [your-branch-name]`
-
-8. Create a Pull Request:
-   - Go to the repository page on GitHub
-   - Click on "Pull requests" > "New pull request"
-   - Select your branch and create the pull request
-   - Add a description of your changes
-   - The project owner will review your changes and merge them if approved
-
-9. Stay Updated:
-   - Regularly pull changes from the main branch:
-     ```
-     git checkout main
-     git pull origin main
-     git checkout [your-branch-name]
-     git merge main
-     ```
-
-10. Resolve Conflicts:
-    - If there are merge conflicts, resolve them in Visual Studio
-    - Commit the resolved changes
-
-Remember to communicate with your team about which files you're working on to avoid merge conflicts.
-
-
-
-
-
+By following this README, you can compile and run the GUI application, which demonstrates how to create a graphical application using GLFW, OpenGL, and Dear ImGui, fetch and display data from the League of Legends API, and implement custom GUI styles.
