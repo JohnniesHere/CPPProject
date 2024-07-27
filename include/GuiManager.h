@@ -68,5 +68,8 @@ private:
     bool isIconLoaded;
     std::vector<GLuint> skillTextures;
     bool areSkillIconsLoaded;
+    std::string selectedSkill;
+    std::string skillDescription;
+    std::map<std::string, std::string> skillDescriptions;
 
 };
