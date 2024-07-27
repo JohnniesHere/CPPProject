@@ -358,6 +358,8 @@ void GUIManager::RenderChampionsWindow() {
                 LoadChampionSplash(championId);
                 LoadChampionIcon(championId);
                 areSkillIconsLoaded = false;
+                selectedSkill = ""; // Reset selected skill when changing champion
+                skillDescription = ""; // Clear skill description
             }
             if (is_selected)
                 ImGui::SetItemDefaultFocus();
@@ -428,13 +430,34 @@ void GUIManager::RenderChampionsWindow() {
             LoadSkillIcons(championId);
         }
 
-        // Display skill icons
-        ImGui::SetCursorPos(ImVec2(320, 230));  // Adjust this position as needed
+        // Display skill icons and buttons
+        ImGui::SetCursorPos(ImVec2(320, 230));
+        std::string skillNames[] = { "Passive", "Q", "W", "E", "R" };
         for (int i = 0; i < 5; ++i) {
+            ImGui::BeginGroup();
             if (skillTextures[i] != 0) {
-                ImGui::Image((void*)(intptr_t)skillTextures[i], ImVec2(64, 64));
-                ImGui::SameLine(0, 10);  // Add some spacing between icons
+                ImGui::Image((void*)(intptr_t)skillTextures[i], ImVec2(75, 75));
             }
+            std::string buttonLabel = (i == 0) ? "Passive" : skillNames[i] + " Abillity";
+            if (ImGui::Button(buttonLabel.c_str(), ImVec2(75, 35))) {
+                if (buttonLabel == "Passive") {
+                    selectedSkill = buttonLabel;
+                }
+                else {
+                    selectedSkill = championName + " " + skillNames[i];
+                }
+                skillDescription = skillDescriptions[selectedSkill];
+            }
+            ImGui::EndGroup();
+            if (i < 4) ImGui::SameLine(0, 20);
+        }
+
+        // Display skill description
+        if (!selectedSkill.empty()) {
+            ImGui::SetCursorPos(ImVec2(320, 360)); // Adjusted position
+            ImGui::BeginChild("SkillDescription", ImVec2(ImGui::GetWindowWidth() - 330, 70), true, ImGuiWindowFlags_HorizontalScrollbar);
+            ImGui::TextWrapped("%s", skillDescription.c_str());
+            ImGui::EndChild();
         }
     }
 }
@@ -548,12 +571,16 @@ void GUIManager::LoadSkillIcons(const std::string& championId) {
     auto spells = dataManager.GetChampionSpells(championId);
     auto passive = dataManager.GetChampionPassive(championId);
 
-    // Load passive icon
+    // Load passive icon and description
     LoadSkillIcon(passive["image"]["full"], 0);
+    skillDescriptions["Passive"] = passive["name"].get<std::string>() + ": " + passive["description"].get<std::string>();
 
-    // Load skill icons
+    // Load skill icons and descriptions
+    std::string skillNames[] = { "Q", "W", "E", "R" };
     for (int i = 0; i < spells.size() && i < 4; ++i) {
         LoadSkillIcon(spells[i]["image"]["full"], i + 1);
+        skillDescriptions[championId + " " + skillNames[i]] =
+            spells[i]["name"].get<std::string>() + ": " + spells[i]["description"].get<std::string>();
     }
 
     areSkillIconsLoaded = true;
