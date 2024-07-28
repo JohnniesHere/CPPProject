@@ -26,9 +26,15 @@ GUIManager::GUIManager()
     iconTexture(0),
     isIconLoaded(false),
     skillTextures(5, 0),
-    areSkillIconsLoaded(false) {}
+    areSkillIconsLoaded(false),
+    isRandomizing(false),
+    hasRandomChampion(false) {}
 
 GUIManager::~GUIManager() {
+    isRandomizing.store(false);
+    if (randomizationThread.joinable()) {
+        randomizationThread.join();
+    }
     Cleanup();
 }
 
@@ -420,6 +426,35 @@ void GUIManager::RenderChampionsWindow() {
             }
         }
         ImGui::EndCombo();
+    }
+
+    // Add Random Champion button
+    ImGui::SameLine();
+    if (ImGui::Button("Random Champion")) {
+        if (!isRandomizing.load()) {
+            RandomizeChampion();
+        }
+    }
+
+    // Load the randomly selected champion
+    if (!isRandomizing.load() && hasRandomChampion.load()) {
+        hasRandomChampion.store(false); // Reset the flag
+
+        std::string championName = championNames[selectedChampionIndex];
+        std::string championId = dataManager.GetChampionId(championName);
+        LoadChampionSplash(championId);
+        LoadChampionIcon(championId);
+        areSkillIconsLoaded = false;
+        selectedSkill = "";
+        skillDescription = "";
+        showAllyTip = false;
+        showEnemyTip = false;
+        allyTips.clear();
+        enemyTips.clear();
+        allyTipIndices.clear();
+        enemyTipIndices.clear();
+        currentAllyTipIndex = 0;
+        currentEnemyTipIndex = 0;
     }
 
     // Display champion splash art as background
@@ -871,4 +906,32 @@ void GUIManager::RandomizeTips(const std::vector<std::string>& tips, std::vector
     std::mt19937 g(rd());
 
     std::shuffle(indices.begin(), indices.end(), g);
+}
+
+void GUIManager::RandomizeChampion() {
+    if (isRandomizing.load()) return; // Don't start a new randomization if one is in progress
+
+    isRandomizing.store(true);
+    hasRandomChampion.store(false);
+    const auto& championNames = dataManager.GetChampionNames();
+
+    randomizationThread = std::thread([this, championNames]() {
+        std::vector<size_t> indices(championNames.size());
+        std::iota(indices.begin(), indices.end(), 0);
+
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::shuffle(indices.begin(), indices.end(), g);
+
+        // Select a single random champion
+        {
+            std::lock_guard<std::mutex> lock(tipMutex);
+            selectedChampionIndex = indices[0];
+        }
+
+        isRandomizing.store(false);
+        hasRandomChampion.store(true);
+        });
+
+    randomizationThread.detach(); // Allow the thread to run independently
 }
