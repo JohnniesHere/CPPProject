@@ -227,21 +227,21 @@ void GUIManager::RenderGUI() {
 
     // Champions button
     ImGui::SetCursorPos(ImVec2(logoWidth + separatorThickness, 0));
-    if (ImGui::Button("Champions", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
+    if (ImGui::Button("CHAMPIONS", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
         currentState = WindowState::Champions;
     }
 
 
     // Items button
     ImGui::SetCursorPos(ImVec2(logoWidth + sectionWidth + separatorThickness, 0));
-    if (ImGui::Button("Items", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
+    if (ImGui::Button("ITEMS", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
         currentState = WindowState::Items;
     }
 
 
     // Summoner's Spells button
     ImGui::SetCursorPos(ImVec2(logoWidth + sectionWidth * 2 + separatorThickness, 0));
-    if (ImGui::Button("Summoner's Spells", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
+    if (ImGui::Button("SUMMONER'S SPELLS", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
         currentState = WindowState::SummonerSpells;
     }
 
