@@ -82,6 +82,11 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
         return false;
     }
 
+    if (!dataManager.FetchItemData()) {
+        std::cerr << "Failed to fetch item data" << std::endl;
+        return false;
+    }
+
     if (!LoadIconTexture("D:\\CPP Project\\CPPProject\\assets\\icon.png")) {
         std::cerr << "Failed to load icon texture" << std::endl;
         // Decide if you want to return false here or continue without the icon
@@ -225,6 +230,10 @@ void GUIManager::RenderGUI() {
     }
 
 
+    // Define colors for normal and hovered states
+    ImVec4 normalTextColor(1.0f, 1.0f, 1.0f, 1.0f); // White
+    ImVec4 hoveredTextColor(0.8431f, 0.7255f, 0.4745f, 1.0f); // Gold/Yellow
+
     // Push custom styles for main buttons
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0706f, 0.0706f, 0.0706f, 0.2f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.1412f, 0.1412f, 0.1412f, 0.4f));
@@ -233,23 +242,39 @@ void GUIManager::RenderGUI() {
 
     // Champions button
     ImGui::SetCursorPos(ImVec2(logoWidth + separatorThickness, 0));
+    bool championsHovered = ImGui::IsMouseHoveringRect(
+        ImGui::GetCursorScreenPos(),
+        ImVec2(ImGui::GetCursorScreenPos().x + sectionWidth - separatorThickness, ImGui::GetCursorScreenPos().y + buttonHeight)
+    );
+    ImGui::PushStyleColor(ImGuiCol_Text, championsHovered ? hoveredTextColor : normalTextColor);
     if (ImGui::Button("CHAMPIONS", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
         currentState = WindowState::Champions;
     }
-
+    ImGui::PopStyleColor();
 
     // Items button
     ImGui::SetCursorPos(ImVec2(logoWidth + sectionWidth + separatorThickness, 0));
+    bool itemsHovered = ImGui::IsMouseHoveringRect(
+        ImGui::GetCursorScreenPos(),
+        ImVec2(ImGui::GetCursorScreenPos().x + sectionWidth - separatorThickness, ImGui::GetCursorScreenPos().y + buttonHeight)
+    );
+    ImGui::PushStyleColor(ImGuiCol_Text, itemsHovered ? hoveredTextColor : normalTextColor);
     if (ImGui::Button("ITEMS", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
         currentState = WindowState::Items;
     }
-
+    ImGui::PopStyleColor();
 
     // Summoner's Spells button
     ImGui::SetCursorPos(ImVec2(logoWidth + sectionWidth * 2 + separatorThickness, 0));
+    bool spellsHovered = ImGui::IsMouseHoveringRect(
+        ImGui::GetCursorScreenPos(),
+        ImVec2(ImGui::GetCursorScreenPos().x + sectionWidth - separatorThickness, ImGui::GetCursorScreenPos().y + buttonHeight)
+    );
+    ImGui::PushStyleColor(ImGuiCol_Text, spellsHovered ? hoveredTextColor : normalTextColor);
     if (ImGui::Button("SUMMONER'S SPELLS", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
         currentState = WindowState::SummonerSpells;
     }
+    ImGui::PopStyleColor();
 
     ImGui::PopStyleColor(3);
     ImGui::PopStyleVar();
@@ -939,5 +964,128 @@ void GUIManager::RandomizeChampion() {
 }
 
 // Item window functions implementation
+
 void GUIManager::RenderItemsWindow() {
+    const auto& itemNames = dataManager.GetItemNames();
+    if (itemNames.empty()) {
+        ImGui::Text("No items available.");
+        return;
+    }
+
+    static char searchBuffer[256] = "";
+    ImGui::SetNextItemWidth(300);
+    ImGui::SetCursorPos(ImVec2(10, 5));
+
+    if (ImGui::BeginCombo("##ItemSelect",
+        (selectedItemIndex >= 0 && selectedItemIndex < itemNames.size())
+        ? itemNames[selectedItemIndex].c_str()
+        : "Select Item")) {
+
+        ImGui::PushItemWidth(-1);
+        ImGui::SetCursorPos(ImVec2(10, 10));
+        if (ImGui::InputText("##Search", searchBuffer, IM_ARRAYSIZE(searchBuffer))) {
+            std::string search = searchBuffer;
+            std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+        }
+        ImGui::PopItemWidth();
+        ImGui::Separator();
+
+        for (int i = 0; i < itemNames.size(); i++) {
+            std::string lowerItemName = itemNames[i];
+            std::transform(lowerItemName.begin(), lowerItemName.end(), lowerItemName.begin(), ::tolower);
+
+            if (lowerItemName.find(searchBuffer) != std::string::npos) {
+                bool is_selected = (selectedItemIndex == i);
+                if (ImGui::Selectable(itemNames[i].c_str(), is_selected)) {
+                    if (selectedItemIndex != i) {
+                        selectedItemIndex = i;
+                        std::string itemId = dataManager.GetItemId(itemNames[i]);
+                    }
+                }
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    // Add icons as buttons
+    ImGui::SetCursorPos(ImVec2(10, 80));
+    ImGui::BeginChild("ItemIcons", ImVec2(ImGui::GetWindowWidth() - 20, 400), true);
+
+    for (int i = 0; i < itemNames.size(); i++) {
+        std::string itemId = dataManager.GetItemId(itemNames[i]);
+        GLuint texture = itemTextures[itemId];
+
+        if (texture != 0) {
+            if (ImGui::ImageButton((void*)(intptr_t)texture, ImVec2(64, 64))) {
+                selectedItemIndex = i;
+                // Load and display item details here
+            }
+            if (i % 6 != 5) ImGui::SameLine(); // Adjust as needed
+        }
+    }
+
+    ImGui::EndChild();
+
+    if (selectedItemIndex >= 0 && selectedItemIndex < itemNames.size()) {
+        std::string itemId = dataManager.GetItemId(itemNames[selectedItemIndex]);
+        ImGui::SetCursorPos(ImVec2(10, 490));
+        ImGui::BeginChild("ItemDetails", ImVec2(ImGui::GetWindowWidth() - 20, 200), true);
+
+        ImGui::Text("Name: %s", dataManager.GetSpecificItemName(itemId).c_str());
+        ImGui::Text("Description: %s", dataManager.GetItemDescription(itemId).c_str());
+        ImGui::Text("Cost: %d", dataManager.GetItemCost(itemId));
+        auto stats = dataManager.GetItemStats(itemId);
+        ImGui::Text("Stats:");
+        for (auto& [statName, statValue] : stats.items()) {
+            if (statValue["flat"].get<float>() != 0) {
+                ImGui::Text("  %s: %.2f", statName.c_str(), statValue["flat"].get<float>());
+            }
+        }
+
+        ImGui::EndChild();
+    }
+}
+
+void GUIManager::RenderItemsDetail() {
+    static std::string selectedTag = "DefaultTag"; // Set a default tag
+    static std::vector<std::string> tags = { "Fighter", "Marksman", "Assassin", 
+                                             "Mage", "Tank", "Support"};
+
+    // Combo box for selecting item categories/tags
+    if (ImGui::BeginCombo("Select Tag", selectedTag.c_str())) {
+        for (const auto& tag : tags) {
+            bool isSelected = (selectedTag == tag);
+            if (ImGui::Selectable(tag.c_str(), isSelected)) {
+                selectedTag = tag;
+                DisplayItemsByTag(selectedTag); // Load items for the selected tag
+            }
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    // Display item icons as buttons
+    for (const auto& itemId : currentItems) {
+        std::string itemIconUrl = dataManager.GetItemImageUrl(itemId);
+        GLuint itemTexture = LoadTextureFromURL(itemIconUrl.c_str()); // Load the texture
+        if (ImGui::ImageButton((void*)(intptr_t)itemTexture, ImVec2(64, 64))) {
+            // Handle item button click, e.g., show item details
+            std::cout << "Item clicked: " << itemId << std::endl;
+        }
+    }
+}
+
+void GUIManager::DisplayItemsByTag(const std::string& tag) {
+    currentItems = dataManager.GetItemsByTag(tag);
+}
+
+// Simplified function to load texture from URL
+GLuint GUIManager::LoadTextureFromURL(const char* url) {
+    // Your existing logic to load the texture from a URL
+    // Ensure it handles errors and returns a valid GLuint texture ID
+    return 0; // Placeholder return, replace with actual texture loading code
 }

@@ -130,6 +130,7 @@ bool DataManager::FetchItemData() {
     std::cerr << "Failed to fetch item data" << std::endl;
     return false;
 }
+
 bool DataManager::FetchSpecificItemData(const std::string& itemId) const {
     // Check if we already have this item's data
     if (specificItemData.find(itemId) != specificItemData.end()) {
@@ -166,7 +167,7 @@ bool DataManager::FetchSpecificItemData(const std::string& itemId) const {
 void DataManager::ProcessItemData() {
     itemNames.clear();
     itemNameToIdMap.clear();
-    for (auto& [key, value] : itemData["data"].items()) {
+    for (auto& [key, value] : itemData.items()) {
         std::string name = value["name"];
         itemNames.push_back(name);
         itemNameToIdMap[name] = key;
@@ -174,6 +175,18 @@ void DataManager::ProcessItemData() {
 }
 const std::vector<std::string>& DataManager::GetItemNames() const {
     return itemNames;
+}
+std::vector<std::string> DataManager::GetItemsByTag(const std::string& tag) const {
+    std::vector<std::string> itemsWithTag;
+    for (const auto& item : itemData.items()) {
+        if (item.value()["tags"].contains(tag)) {
+            itemsWithTag.push_back(item.key());
+        }
+    }
+    return itemsWithTag;
+}
+std::string DataManager::GetItemImageUrl(const std::string& itemId) const {
+    return itemData[itemId]["icon"];
 }
 std::string DataManager::GetItemId(const std::string& itemName) const {
     auto it = itemNameToIdMap.find(itemName);
@@ -209,9 +222,6 @@ std::vector<std::string> DataManager::GetItemBuildsInto(const std::string& itemI
         }
     }
     return buildsInto;
-}
-std::string DataManager::GetItemImageUrl(const std::string& itemId) const {
-    return "https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/" + itemId + ".png";
 }
 int DataManager::GetItemCost(const std::string& itemId) const {
     FetchSpecificItemData(itemId);
