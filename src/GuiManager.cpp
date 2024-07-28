@@ -1035,12 +1035,17 @@ void GUIManager::RenderItemsWindow() {
 
         ImGui::Text("Name: %s", dataManager.GetSpecificItemName(itemId).c_str());
         ImGui::Text("Description: %s", dataManager.GetItemDescription(itemId).c_str());
-        ImGui::Text("Cost: %d", dataManager.GetItemCost(itemId));
+        int cost = dataManager.GetItemCost(itemId);
+        if (cost >= 0) {
+            ImGui::Text("Cost: %d", cost);
+        }
         auto stats = dataManager.GetItemStats(itemId);
-        ImGui::Text("Stats:");
-        for (auto& [statName, statValue] : stats.items()) {
-            if (statValue["flat"].get<float>() != 0) {
-                ImGui::Text("  %s: %.2f", statName.c_str(), statValue["flat"].get<float>());
+        if (!stats.empty()) {
+            ImGui::Text("Stats:");
+            for (auto& [statName, statValue] : stats.items()) {
+                if (statValue.contains("flat") && statValue["flat"].get<float>() != 0) {
+                    ImGui::Text("  %s: %.2f", statName.c_str(), statValue["flat"].get<float>());
+                }
             }
         }
 
