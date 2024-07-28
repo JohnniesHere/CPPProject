@@ -225,6 +225,10 @@ void GUIManager::RenderGUI() {
     }
 
 
+    // Define colors for normal and hovered states
+    ImVec4 normalTextColor(1.0f, 1.0f, 1.0f, 1.0f); // White
+    ImVec4 hoveredTextColor(0.8431f, 0.7255f, 0.4745f, 1.0f); // Gold/Yellow
+
     // Push custom styles for main buttons
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0706f, 0.0706f, 0.0706f, 0.2f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.1412f, 0.1412f, 0.1412f, 0.4f));
@@ -233,23 +237,39 @@ void GUIManager::RenderGUI() {
 
     // Champions button
     ImGui::SetCursorPos(ImVec2(logoWidth + separatorThickness, 0));
+    bool championsHovered = ImGui::IsMouseHoveringRect(
+        ImGui::GetCursorScreenPos(),
+        ImVec2(ImGui::GetCursorScreenPos().x + sectionWidth - separatorThickness, ImGui::GetCursorScreenPos().y + buttonHeight)
+    );
+    ImGui::PushStyleColor(ImGuiCol_Text, championsHovered ? hoveredTextColor : normalTextColor);
     if (ImGui::Button("CHAMPIONS", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
         currentState = WindowState::Champions;
     }
-
+    ImGui::PopStyleColor();
 
     // Items button
     ImGui::SetCursorPos(ImVec2(logoWidth + sectionWidth + separatorThickness, 0));
+    bool itemsHovered = ImGui::IsMouseHoveringRect(
+        ImGui::GetCursorScreenPos(),
+        ImVec2(ImGui::GetCursorScreenPos().x + sectionWidth - separatorThickness, ImGui::GetCursorScreenPos().y + buttonHeight)
+    );
+    ImGui::PushStyleColor(ImGuiCol_Text, itemsHovered ? hoveredTextColor : normalTextColor);
     if (ImGui::Button("ITEMS", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
         currentState = WindowState::Items;
     }
-
+    ImGui::PopStyleColor();
 
     // Summoner's Spells button
     ImGui::SetCursorPos(ImVec2(logoWidth + sectionWidth * 2 + separatorThickness, 0));
+    bool spellsHovered = ImGui::IsMouseHoveringRect(
+        ImGui::GetCursorScreenPos(),
+        ImVec2(ImGui::GetCursorScreenPos().x + sectionWidth - separatorThickness, ImGui::GetCursorScreenPos().y + buttonHeight)
+    );
+    ImGui::PushStyleColor(ImGuiCol_Text, spellsHovered ? hoveredTextColor : normalTextColor);
     if (ImGui::Button("SUMMONER'S SPELLS", ImVec2(sectionWidth - separatorThickness, buttonHeight))) {
         currentState = WindowState::SummonerSpells;
     }
+    ImGui::PopStyleColor();
 
     ImGui::PopStyleColor(3);
     ImGui::PopStyleVar();
