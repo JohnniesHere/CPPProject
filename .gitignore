@@ -50,3 +50,12 @@ bld/
 
 # User-specific files
 *.rsuser
+.vs/CPPProject/v17/.suo
+.vs/CPPProject/v17/Browse.VC.db
+CPPProject/x64/Debug/CPPProject.log
+CPPProject/x64/Debug/CPPProject.tlog/link.read.1.tlog
+CPPProject/x64/Debug/GuiManager.obj
+CPPProject/x64/Debug/vc143.idb
+CPPProject/x64/Debug/vc143.pdb
+x64/Debug/CPPProject.exe
+x64/Debug/CPPProject.pdb
