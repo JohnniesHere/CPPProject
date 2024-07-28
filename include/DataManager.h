@@ -9,6 +9,7 @@
 class DataManager {
 public:
     DataManager();
+
     bool FetchChampionData();
     bool FetchSpecificChampionData(const std::string& championId) const;  // Now const
     const std::vector<std::string>& GetChampionNames() const;
