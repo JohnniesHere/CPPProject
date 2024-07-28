@@ -347,6 +347,8 @@ void GUIManager::RenderGUI() {
         RenderChampionsWindow();
         break;
     case WindowState::Items:
+        RenderItemsWindow();
+        break;
     case WindowState::SummonerSpells:
         ImGui::Text("This feature is not implemented yet.");
         break;
@@ -934,4 +936,8 @@ void GUIManager::RandomizeChampion() {
         });
 
     randomizationThread.detach(); // Allow the thread to run independently
+}
+
+// Item window functions implementation
+void GUIManager::RenderItemsWindow() {
 }
