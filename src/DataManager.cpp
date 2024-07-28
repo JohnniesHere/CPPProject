@@ -195,14 +195,22 @@ std::string DataManager::GetItemId(const std::string& itemName) const {
     }
     return itemName; // Fallback to the name if ID is not found
 }
+
 std::string DataManager::GetSpecificItemName(const std::string& itemId) const {
-    FetchSpecificItemData(itemId);
-    return specificItemData.at(itemId)[itemId]["name"];
+    if (itemData.contains(itemId)) {
+        return itemData[itemId]["name"];
+    }
+    return "Unknown Item";
 }
+
 std::string DataManager::GetItemDescription(const std::string& itemId) const {
-    FetchSpecificItemData(itemId);
-    return specificItemData.at(itemId)[itemId]["simpleDescription"];
+    if (itemData.contains(itemId) && itemData[itemId].contains("simpleDescription")) {
+        return itemData[itemId]["simpleDescription"];
+    }
+    return "No description available";
 }
+
+
 std::vector<std::string> DataManager::GetItemBuildsFrom(const std::string& itemId) const {
     FetchSpecificItemData(itemId);
     std::vector<std::string> buildsFrom;
@@ -224,12 +232,15 @@ std::vector<std::string> DataManager::GetItemBuildsInto(const std::string& itemI
     return buildsInto;
 }
 int DataManager::GetItemCost(const std::string& itemId) const {
-    FetchSpecificItemData(itemId);
-    if (specificItemData.at(itemId).contains("shop") && specificItemData.at(itemId)["shop"].contains("prices")) {
-        return specificItemData.at(itemId)["shop"]["prices"]["total"].get<int>();
+    if (itemData.contains(itemId) && itemData[itemId].contains("shop") &&
+        itemData[itemId]["shop"].contains("prices") &&
+        itemData[itemId]["shop"]["prices"].contains("total")) {
+        return itemData[itemId]["shop"]["prices"]["total"];
     }
-    return -1;  // Return a default value or handle the case where the item cost is not available
+    return -1;
 }
+
+
 int DataManager::GetItemSellPrice(const std::string& itemId) const {
     FetchSpecificItemData(itemId);
     if (specificItemData.at(itemId).contains("shop") && specificItemData.at(itemId)["shop"].contains("prices")) {
@@ -255,12 +266,13 @@ std::vector<std::string> DataManager::GetItemTags(const std::string& itemId) con
     return tags;
 }
 nlohmann::json DataManager::GetItemStats(const std::string& itemId) const {
-    FetchSpecificItemData(itemId);
-    if (specificItemData.at(itemId).contains("stats")) {
-        return specificItemData.at(itemId)["stats"];
+    if (itemData.contains(itemId) && itemData[itemId].contains("stats")) {
+        return itemData[itemId]["stats"];
     }
-    return {};  // Return an empty JSON object if the key is not found
+    return nlohmann::json::object();
 }
+
+
 nlohmann::json DataManager::GetItemData(const std::string& itemId) const {
     FetchSpecificItemData(itemId);
     if (specificItemData.at(itemId).contains(itemId)) {
