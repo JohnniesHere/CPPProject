@@ -32,6 +32,7 @@ public:
     bool FetchItemData();
     bool FetchSpecificItemData(const std::string& itemId) const;
     const std::vector<std::string>& GetItemNames() const;
+    std::vector<std::string> GetItemsByTag(const std::string& tag) const;
     std::string GetItemId(const std::string& itemName) const;
     std::string GetSpecificItemName(const std::string& itemId) const;
     std::string GetItemDescription(const std::string& itemId) const;
