@@ -62,7 +62,8 @@ private:
     void RenderBackground();
     void RenderGUI();
     void RenderDefaultWindow();
-    void RenderChampionsWindow();
+    void RenderChampionsWindow();   
+    void RenderItemsWindow();
 
     void CleanupSkinTextures();
 
