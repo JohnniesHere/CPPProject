@@ -64,7 +64,7 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 
     // Load and set the custom font
     ImGuiIO& io = ImGui::GetIO();
-    ImFont* font = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\CPPProject\\assets\\AovelSansRounded-rdDL.ttf", 18.0f);
+    ImFont* font = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\CPPProject\\assets\\recharge bd.ttf", 14.0f);
     if (font == nullptr) {
         std::cerr << "Failed to load custom font" << std::endl;
         return false;
@@ -146,8 +146,8 @@ void GUIManager::Cleanup() {
 
 void GUIManager::ApplyCustomStyles() {
     ImGuiStyle& style = ImGui::GetStyle();
-    style.FrameRounding = 12.0f;
-    style.GrabRounding = 12.0f;
+    style.FrameRounding = 5.0f;
+    style.GrabRounding = 5.0f;
     style.FramePadding = ImVec2(10, 10);
     style.ItemSpacing = ImVec2(10, 10);
 
@@ -641,7 +641,7 @@ void GUIManager::RenderChampionsWindow() {
                 }
             }
 
-            ImGui::SetCursorPos(ImVec2(780, 440));
+            ImGui::SetCursorPos(ImVec2(795, 440));
             ImGui::BeginChild("AllyTip", ImVec2(240, 90), true);
             if (!allyTips.empty()) {
                 size_t index = allyTipIndices[currentAllyTipIndex];
@@ -674,7 +674,7 @@ void GUIManager::RenderChampionsWindow() {
                 }
             }
 
-            ImGui::SetCursorPos(ImVec2(780, 575));
+            ImGui::SetCursorPos(ImVec2(795, 575));
             ImGui::BeginChild("EnemyTip", ImVec2(240, 80), true);
             if (!enemyTips.empty()) {
                 size_t index = enemyTipIndices[currentEnemyTipIndex];
