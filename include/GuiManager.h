@@ -13,6 +13,10 @@
 #include <mutex>
 #include <random>
 #include <algorithm>
+#include <future>
+#include <thread>
+#include <numeric>
+
 
 class GUIManager {
 public:
@@ -24,6 +28,7 @@ public:
     void Render();
     void Cleanup();
     void SetWindowOffset(float offset) { windowOffset = offset; }
+    void RandomizeChampion();
 
 private:
     GLFWwindow* window;
@@ -44,8 +49,13 @@ private:
     };
     WindowState currentState;
 
-    DataManager dataManager;  // Make sure this is declared only once
+    DataManager dataManager;  
     int selectedChampionIndex;
+
+    std::future<void> championDataFuture;
+    std::future<GLuint> championSplashFuture;
+    std::future<GLuint> championIconFuture;
+    std::vector<std::future<GLuint>> skillIconFutures;
 
     void ApplyCustomStyles();
     
@@ -71,7 +81,6 @@ private:
     bool isResizing = false;
     ImVec2 resizeStartPos;
     ImVec2 windowSize;
-    void CreateBoldFont();
     static void WindowResizeCallback(GLFWwindow* window, int width, int height);
     GLuint iconTexture;
     bool isIconLoaded;
@@ -95,5 +104,9 @@ private:
     std::vector<size_t> enemyTipIndices;
     size_t currentAllyTipIndex = 0;
     size_t currentEnemyTipIndex = 0;
-    
+    std::vector<size_t> championIndices;
+    std::thread randomizationThread;
+    std::atomic<bool> isRandomizing;
+    std::atomic<bool> hasRandomChampion;
+
 };
