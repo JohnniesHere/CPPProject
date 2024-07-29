@@ -31,6 +31,7 @@ public:
     void RandomizeChampion();
 
     void RenderItemsDetail();
+    void DisplayItemsByTag(const std::string& tag);
 
 private:
     GLFWwindow* window;
@@ -114,9 +115,15 @@ private:
 
     // Item window related
     std::vector<std::string> currentItems;
-    void DisplayItemsByTag(const std::string& tag);
-    //void DisplayItemDetails();
-    GLuint LoadTextureFromURL(const char* url);
+    bool showFighterItems = false;
+    bool showMarksmanItems = false;
+    bool showAssassinItems = false;
+    bool showMageItems = false;
+    bool showTankItems = false;
+    bool showSupportItems = false;
+    int selectedItemIndex = -1;
     std::map<std::string, GLuint> itemTextures;
-    int selectedItemIndex;
+
+    GLuint LoadTextureFromURL(const std::string& url);
+
 };

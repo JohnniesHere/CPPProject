@@ -164,6 +164,7 @@ bool DataManager::FetchSpecificItemData(const std::string& itemId) const {
         return false;
     }
 }
+
 void DataManager::ProcessItemData() {
     itemNames.clear();
     itemNameToIdMap.clear();
@@ -173,21 +174,29 @@ void DataManager::ProcessItemData() {
         itemNameToIdMap[name] = key;
     }
 }
+
 const std::vector<std::string>& DataManager::GetItemNames() const {
     return itemNames;
 }
+
 std::vector<std::string> DataManager::GetItemsByTag(const std::string& tag) const {
     std::vector<std::string> itemsWithTag;
-    for (const auto& item : itemData.items()) {
-        if (item.value()["tags"].contains(tag)) {
-            itemsWithTag.push_back(item.key());
+    for (const auto& [itemId, itemData] : itemData.items()) {
+        if (itemData.contains("shop") && itemData["shop"].contains("tags")) {
+            const auto& tags = itemData["shop"]["tags"];
+            if (std::find(tags.begin(), tags.end(), tag) != tags.end()) {
+                itemsWithTag.push_back(itemId);
+            }
         }
     }
+    std::cout << "Found " << itemsWithTag.size() << " items with tag: " << tag << std::endl;
     return itemsWithTag;
 }
+
 std::string DataManager::GetItemImageUrl(const std::string& itemId) const {
     return itemData[itemId]["icon"];
 }
+
 std::string DataManager::GetItemId(const std::string& itemName) const {
     auto it = itemNameToIdMap.find(itemName);
     if (it != itemNameToIdMap.end()) {
@@ -205,7 +214,8 @@ std::string DataManager::GetSpecificItemName(const std::string& itemId) const {
 
 std::string DataManager::GetItemDescription(const std::string& itemId) const {
     if (itemData.contains(itemId) && itemData[itemId].contains("simpleDescription")) {
-        return itemData[itemId]["simpleDescription"];
+        if (itemData[itemId].at("simpleDescription") != nullptr )
+            return itemData[itemId]["simpleDescription"];
     }
     return "No description available";
 }
