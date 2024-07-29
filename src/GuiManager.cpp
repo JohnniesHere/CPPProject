@@ -82,6 +82,11 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
         return false;
     }
 
+    if (!dataManager.FetchItemData()) {
+        std::cerr << "Failed to fetch item data" << std::endl;
+        return false;
+    }
+
     if (!LoadIconTexture("D:\\CPP Project\\CPPProject\\assets\\icon.png")) {
         std::cerr << "Failed to load icon texture" << std::endl;
         // Decide if you want to return false here or continue without the icon
@@ -367,6 +372,8 @@ void GUIManager::RenderGUI() {
         RenderChampionsWindow();
         break;
     case WindowState::Items:
+        RenderItemsWindow();
+        break;
     case WindowState::SummonerSpells:
         ImGui::Text("This feature is not implemented yet.");
         break;
@@ -991,4 +998,202 @@ void GUIManager::RandomizeChampion() {
         });
 
     randomizationThread.detach(); // Allow the thread to run independently
+}
+
+// Item window functions implementation
+
+void GUIManager::RenderItemsWindow() {
+    const auto& itemNames = dataManager.GetItemNames();
+    if (itemNames.empty()) {
+        ImGui::Text("No items available.");
+        return;
+    }
+
+    static int comboSelectedIndex = -1;
+    static char searchBuffer[256] = "";
+    ImGui::SetNextItemWidth(300);
+    ImGui::SetCursorPos(ImVec2(10, 5));
+
+    if (ImGui::BeginCombo("##ItemSelect",
+        (comboSelectedIndex >= 0 && comboSelectedIndex < itemNames.size())
+        ? itemNames[comboSelectedIndex].c_str()
+        : "Select Item")) {
+
+        ImGui::PushItemWidth(-1);
+        ImGui::SetCursorPos(ImVec2(10, 10));
+        if (ImGui::InputText("##Search", searchBuffer, IM_ARRAYSIZE(searchBuffer))) {
+            std::string search = searchBuffer;
+            std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+        }
+        ImGui::PopItemWidth();
+        ImGui::Separator();
+
+        for (int i = 0; i < itemNames.size(); i++) {
+            std::string lowerItemName = itemNames[i];
+            std::transform(lowerItemName.begin(), lowerItemName.end(), lowerItemName.begin(), ::tolower);
+
+            if (lowerItemName.find(searchBuffer) != std::string::npos) {
+                bool is_selected = (comboSelectedIndex == i);
+                if (ImGui::Selectable(itemNames[i].c_str(), is_selected)) {
+                    if (comboSelectedIndex != i) {
+                        comboSelectedIndex = i;
+                        std::string itemId = dataManager.GetItemId(itemNames[i]);
+                        std::cout << "Selected item from combo: " << itemNames[i] << " (ID: " << itemId << ")" << std::endl;
+                        // Update currentItems and selectedItemIndex for consistency
+                        currentItems = { itemId };
+                        selectedItemIndex = 0;
+                    }
+                }
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    // Tag Buttons
+    ImGui::NewLine();
+    ImGui::SetCursorPos(ImVec2(25, ImGui::GetCursorPosY())); // Adjust the 25 to move it more or less to the right
+    const char* tags[] = { "FIGHTER", "MARKSMAN", "ASSASSIN", "MAGE", "TANK", "SUPPORT" };
+    for (const char* tag : tags) {
+        if (ImGui::Button(tag)) {
+            std::cout << tag << " button clicked" << std::endl;
+            DisplayItemsByTag(tag);
+            comboSelectedIndex = -1; // Reset combo box selection when tag is clicked
+        }
+        if (tag != tags[5]) ImGui::SameLine();
+    }
+
+    // Display items for the selected tag or combo box selection
+    // Set the cursor position to move the child window to the right
+    ImGui::SetCursorPos(ImVec2(25, ImGui::GetCursorPosY())); // Adjust the 25 to move it more or less to the right
+
+    // Now begin the child window
+    ImGui::BeginChild("ItemsList", ImVec2(ImGui::GetWindowWidth() - 50, 300), true); // Adjusted width to account for the moved position    std::cout << "Number of items to display: " << currentItems.size() << std::endl;
+    int itemsPerRow = 13;
+    for (int i = 0; i < currentItems.size(); i++) {
+        const auto& itemId = currentItems[i];
+        std::string itemName = dataManager.GetSpecificItemName(itemId);
+        std::string itemIconUrl = dataManager.GetItemImageUrl(itemId);
+
+        GLuint itemTexture = LoadTextureFromURL(itemIconUrl);
+
+        if (i % itemsPerRow != 0) ImGui::SameLine();
+        if (ImGui::ImageButton((void*)(intptr_t)itemTexture, ImVec2(64, 64))) {
+            selectedItemIndex = i;
+            std::cout << "Selected item from grid: " << itemName << " (ID: " << itemId << ")" << std::endl;
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::BeginTooltip();
+            ImGui::Text("%s", itemName.c_str());
+            ImGui::EndTooltip();
+        }
+    }
+    ImGui::EndChild();
+
+    // Display item details
+    if (!currentItems.empty() && selectedItemIndex >= 0 && selectedItemIndex < currentItems.size()) {
+        std::string itemId = currentItems[selectedItemIndex];
+        ImGui::SetCursorPos(ImVec2(25, ImGui::GetCursorPosY())); // Adjust the 25 to move it more or less to the right
+        ImGui::BeginChild("ItemDetails", ImVec2(ImGui::GetWindowWidth() - 550, 200), true);
+
+        ImGui::Text("Name: %s", dataManager.GetSpecificItemName(itemId).c_str());
+        ImGui::Text("Description: %s", dataManager.GetItemDescription(itemId).c_str());
+        int cost = dataManager.GetItemCost(itemId);
+        if (cost >= 0) {
+            ImGui::Text("Cost: %d", cost);
+        }
+        auto stats = dataManager.GetItemStats(itemId);
+        if (!stats.empty()) {
+            ImGui::Text("Stats:");
+            for (auto& [statName, statValue] : stats.items()) {
+                if (statValue.contains("flat") && statValue["flat"].get<float>() != 0) {
+                    ImGui::Text("  %s: %.2f", statName.c_str(), statValue["flat"].get<float>());
+                }
+            }
+        }
+
+        ImGui::EndChild();
+    }
+}
+
+void GUIManager::RenderItemsDetail() {
+    static std::string selectedTag = "DefaultTag"; // Set a default tag
+    static std::vector<std::string> tags = { "Fighter", "Marksman", "Assassin", 
+                                             "Mage", "Tank", "Support"};
+
+    // Combo box for selecting item categories/tags
+    if (ImGui::BeginCombo("Select Tag", selectedTag.c_str())) {
+        for (const auto& tag : tags) {
+            bool isSelected = (selectedTag == tag);
+            if (ImGui::Selectable(tag.c_str(), isSelected)) {
+                selectedTag = tag;
+                DisplayItemsByTag(selectedTag); // Load items for the selected tag
+            }
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    // Display item icons as buttons
+    for (const auto& itemId : currentItems) {
+        std::string itemIconUrl = dataManager.GetItemImageUrl(itemId);
+        GLuint itemTexture = LoadTextureFromURL(itemIconUrl); // Load the texture
+        if (ImGui::ImageButton((void*)(intptr_t)itemTexture, ImVec2(64, 64))) {
+            // Handle item button click, e.g., show item details
+            std::cout << "Item clicked: " << itemId << std::endl;
+        }
+    }
+}
+
+void GUIManager::DisplayItemsByTag(const std::string& tag) {
+    std::cout << "DisplayItemsByTag called with tag: " << tag << std::endl;
+    currentItems = dataManager.GetItemsByTag(tag);
+    selectedItemIndex = -1;
+    std::cout << "Items loaded for tag " << tag << ": " << currentItems.size() << std::endl;
+    for (const auto& itemId : currentItems) {
+        std::cout << "  - " << dataManager.GetSpecificItemName(itemId) << " (ID: " << itemId << ")" << std::endl;
+    }
+}
+
+// Simplified function to load texture from URL
+GLuint GUIManager::LoadTextureFromURL(const std::string& url) {
+    // Check if the texture is already loaded
+    if (itemTextures.find(url) != itemTextures.end()) {
+        return itemTextures[url];
+    }
+
+    CURL* curl = curl_easy_init();
+    GLuint texture = 0;
+    if (curl) {
+        std::string imageData;
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &imageData);
+
+        CURLcode res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        if (res == CURLE_OK) {
+            int width, height, channels;
+            unsigned char* image = stbi_load_from_memory(
+                reinterpret_cast<const unsigned char*>(imageData.data()),
+                imageData.size(), &width, &height, &channels, 4);
+
+            if (image) {
+                glGenTextures(1, &texture);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+                stbi_image_free(image);
+
+                // Cache the loaded texture
+                itemTextures[url] = texture;
+            }
+        }
+    }
+    return texture;
 }
