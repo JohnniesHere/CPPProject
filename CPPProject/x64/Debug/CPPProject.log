@@ -8,13 +8,11 @@ D:\CPP Project\CPPProject\src\GuiManager.cpp(323,49): warning C4244: 'argument':
 D:\CPP Project\CPPProject\src\GuiManager.cpp(323,36): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
 D:\CPP Project\CPPProject\src\GuiManager.cpp(354,59): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
 D:\CPP Project\CPPProject\src\GuiManager.cpp(354,45): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(736,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(774,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(863,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(898,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\CPP Project\CPPProject\src\GuiManager.cpp(949,46): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  LINK : D:\CPP Project\CPPProject\x64\Debug\CPPProject.exe not found or not built by the last incremental link; performing full link
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+D:\CPP Project\CPPProject\src\GuiManager.cpp(773,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\CPP Project\CPPProject\src\GuiManager.cpp(811,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\CPP Project\CPPProject\src\GuiManager.cpp(900,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\CPP Project\CPPProject\src\GuiManager.cpp(935,31): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\CPP Project\CPPProject\src\GuiManager.cpp(986,46): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
   CPPProject.vcxproj -> D:\CPP Project\CPPProject\x64\Debug\CPPProject.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
