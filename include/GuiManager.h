@@ -40,7 +40,6 @@ private:
     GLuint championSplashTexture;
     GLuint championIconTexture;
 
-
     float buttonHeight;
     float windowOffset;
 
@@ -123,7 +122,8 @@ private:
     bool showSupportItems = false;
     int selectedItemIndex = -1;
     std::map<std::string, GLuint> itemTextures;
+    std::vector<std::string> itemHistory;
+    std::string currentTag;
 
     GLuint LoadTextureFromURL(const std::string& url);
-
 };
