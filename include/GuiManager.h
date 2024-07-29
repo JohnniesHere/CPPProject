@@ -30,6 +30,9 @@ public:
     void SetWindowOffset(float offset) { windowOffset = offset; }
     void RandomizeChampion();
 
+    void RenderItemsDetail();
+    void DisplayItemsByTag(const std::string& tag);
+
 private:
     GLFWwindow* window;
     GLuint backgroundTexture;
@@ -62,7 +65,8 @@ private:
     void RenderBackground();
     void RenderGUI();
     void RenderDefaultWindow();
-    void RenderChampionsWindow();
+    void RenderChampionsWindow();   
+    void RenderItemsWindow();
 
     void CleanupSkinTextures();
 
@@ -108,5 +112,18 @@ private:
     std::thread randomizationThread;
     std::atomic<bool> isRandomizing;
     std::atomic<bool> hasRandomChampion;
+
+    // Item window related
+    std::vector<std::string> currentItems;
+    bool showFighterItems = false;
+    bool showMarksmanItems = false;
+    bool showAssassinItems = false;
+    bool showMageItems = false;
+    bool showTankItems = false;
+    bool showSupportItems = false;
+    int selectedItemIndex = -1;
+    std::map<std::string, GLuint> itemTextures;
+
+    GLuint LoadTextureFromURL(const std::string& url);
 
 };
