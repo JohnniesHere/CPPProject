@@ -291,11 +291,14 @@ bool DataManager::IsItemPurchasable(const std::string& itemId) const {
 }
 
 std::vector<std::string> DataManager::GetItemTags(const std::string& itemId) const {
-    FetchSpecificItemData(itemId);
     std::vector<std::string> tags;
-    if (specificItemData.at(itemId).contains("shop") && specificItemData.at(itemId)["shop"].contains("tags")) {
-        for (const auto& tag : specificItemData.at(itemId)["shop"]["tags"]) {
-            tags.push_back(tag.get<std::string>());
+    if (itemData.contains(itemId) && itemData[itemId].contains("shop") &&
+        itemData[itemId]["shop"].contains("tags")) {
+        for (const auto& tag : itemData[itemId]["shop"]["tags"]) {
+            std::string tagStr = tag.get<std::string>();
+            if (validTags.find(tagStr) != validTags.end()) {
+                tags.push_back(tagStr);
+            }
         }
     }
     return tags;
@@ -309,11 +312,10 @@ nlohmann::json DataManager::GetItemStats(const std::string& itemId) const {
 }
 
 nlohmann::json DataManager::GetItemData(const std::string& itemId) const {
-    FetchSpecificItemData(itemId);
-    if (specificItemData.at(itemId).contains(itemId)) {
-        return specificItemData.at(itemId);
+    if (itemData.contains(itemId)) {
+        return itemData[itemId];
     }
-    return {};  // Return an empty JSON object if the item is not found
+    return nlohmann::json::object();
 }
 
 nlohmann::json DataManager::GetItemShopInfo(const std::string& itemId) const {
@@ -339,4 +341,8 @@ std::string DataManager::GetItemIdFromIconUrl(const std::string& url) const {
         }
     }
     return "";
+}
+
+bool DataManager::ItemExists(const std::string& itemId) const {
+    return itemData.contains(itemId);
 }
