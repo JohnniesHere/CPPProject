@@ -157,9 +157,9 @@ void GUIManager::ApplyCustomStyles() {
     style.ItemSpacing = ImVec2(10, 10);
 
     ImVec4* colors = style.Colors;
-    colors[ImGuiCol_Button] = ImVec4(0.18f, 0.40f, 0.59f, 1.00f);
-    colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.52f, 0.76f, 1.00f);
-    colors[ImGuiCol_ButtonActive] = ImVec4(0.06f, 0.31f, 0.50f, 1.00f);
+    colors[ImGuiCol_Button] = ImVec4(0.3608f, 0.3608f, 0.3608f, 0.7f);
+    colors[ImGuiCol_ButtonHovered] = ImVec4(0.1412f, 0.1412f, 0.1412f, 0.9f);
+    colors[ImGuiCol_ButtonActive] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 }
 
 GLuint GUIManager::LoadTexture(const char* filename) {
@@ -404,6 +404,38 @@ void GUIManager::RenderDefaultWindow() {
 void GUIManager::RenderChampionsWindow() {
     const auto& championNames = dataManager.GetChampionNames();
 
+    // Display champion splash art as background if a champion is selected
+    if (isChampionSplashLoaded && selectedChampionIndex >= 0) {
+        ImGui::GetWindowDrawList()->AddImage(
+            (void*)(intptr_t)championSplashTexture,
+            ImGui::GetWindowPos(),
+            ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowSize().x, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y),
+            ImVec2(0, 0), ImVec2(1, 1),
+            IM_COL32(255, 255, 255, 128)  // 50% opacity
+        );
+    }
+
+    // Create a semi-transparent overlay for the controls
+    ImGui::SetCursorPos(ImVec2(0, 0));
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1f, 0.1f, 0.1f, 0.0f));
+    ImGui::BeginChild("ControlsOverlay", ImVec2(ImGui::GetWindowWidth(), 60), false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar);
+
+
+    // Set custom colors
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));         // Dark background for input fields
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));  // Slightly lighter when hovered
+    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));   // Even lighter when active
+    ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));         // Dark background for combo popup
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));            // White text
+    ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));          // Slightly lighter background for selected item
+    ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));   // Even lighter for hovered item
+    ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));    // Lightest for active/clicked item
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));          // Dark button color
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));   // Lighter button color when hovered
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));    // Even lighter when clicked
+
+
+
     // Champion selection dropdown with search
     static char searchBuffer[256] = "";
     ImGui::SetNextItemWidth(300); // Set the width of the combo box to 300 pixels
@@ -455,6 +487,9 @@ void GUIManager::RenderChampionsWindow() {
         ImGui::EndCombo();
     }
 
+    // Pop custom colors
+    ImGui::PopStyleColor(11);
+
     // Add Random Champion button
     ImGui::SameLine();
     if (ImGui::Button("Random Champion")) {
@@ -462,6 +497,8 @@ void GUIManager::RenderChampionsWindow() {
             RandomizeChampion();
         }
     }
+    ImGui::EndChild();
+    ImGui::PopStyleColor(); // Pop the ChildBg color
 
     // Load the randomly selected champion
     if (!isRandomizing.load() && hasRandomChampion.load()) {
@@ -562,7 +599,7 @@ void GUIManager::RenderChampionsWindow() {
 
             // Use PushStyleColor to change button color if selected
             if (isSelected) {
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.7f, 0.2f, 1.0f)); // Green color for selected skill
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8431f, 0.7255f, 0.4745f, 1.0f)); // Green color for selected skill
             }
 
             if (ImGui::Button(buttonLabel.c_str(), ImVec2(75, 35))) {
