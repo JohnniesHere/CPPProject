@@ -30,7 +30,8 @@ GUIManager::GUIManager()
     skillTextures(5, 0),
     areSkillIconsLoaded(false),
     isRandomizing(false),
-    hasRandomChampion(false) {}
+    hasRandomChampion(false),
+    comboSelectedIndex(-1) {}
 
 GUIManager::~GUIManager() {
     isRandomizing.store(false);
@@ -1011,10 +1012,7 @@ void GUIManager::RenderItemsWindow() {
         return;
     }
 
-    static int comboSelectedIndex = -1;
     static char searchBuffer[256] = "";
-    static std::string currentTag;  // Store the current tag
-
     ImGui::SetNextItemWidth(300);
     ImGui::SetCursorPos(ImVec2(10, 5));
 
@@ -1062,15 +1060,25 @@ void GUIManager::RenderItemsWindow() {
     ImGui::SetCursorPos(ImVec2(10, ImGui::GetCursorPosY()));
     if (ImGui::Button("Back")) {
         if (!itemHistory.empty()) {
-            currentItems = { itemHistory.back() };
+            ItemHistoryEntry previous = itemHistory.back();
             itemHistory.pop_back();
+
+            currentItems = { previous.itemId };
             selectedItemIndex = 0;
             comboSelectedIndex = -1;
+            currentItemTags = previous.tags;
+
+            // Use the original tag instead of the last tag in the list
+            currentTag = previous.originalTag;
+
+            if (!currentTag.empty()) {
+                // If we're going back to a tag view, reload items for that tag
+                DisplayItemsByTag(currentTag);
+            }
         }
         else if (!currentTag.empty()) {
             // If history is empty but we have a tag, go back to tag view
             DisplayItemsByTag(currentTag);
-            currentTag.clear();  // Clear the tag as we're now at the tag view
         }
     }
 
@@ -1089,12 +1097,24 @@ void GUIManager::RenderItemsWindow() {
     for (int i = 0; i < numTags; i++) {
         if (i > 0) ImGui::SameLine();
         ImGui::SetCursorPosX(backButtonWidth + 20 + i * tagButtonWidth);
+
+        bool isActiveTag = (currentTag == tags[i]);
+        if (isActiveTag) {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.7f, 0.2f, 1.0f)); // Green color for active tag
+        }
+
         if (ImGui::Button(tags[i], ImVec2(tagButtonWidth - 5, 0))) { // -5 for small gap between buttons
             std::cout << tags[i] << " button clicked" << std::endl;
-            DisplayItemsByTag(tags[i]);
-            currentTag = tags[i];  // Set the current tag
-            comboSelectedIndex = -1; // Reset combo box selection when tag is clicked
-            itemHistory.clear();  // Clear history when changing tags
+            try {
+                DisplayItemsByTag(tags[i]);
+            }
+            catch (const std::exception& e) {
+                std::cerr << "Exception when displaying items for tag " << tags[i] << ": " << e.what() << std::endl;
+            }
+        }
+
+        if (isActiveTag) {
+            ImGui::PopStyleColor();
         }
     }
 
@@ -1116,6 +1136,13 @@ void GUIManager::RenderItemsWindow() {
         if (ImGui::ImageButton((void*)(intptr_t)itemTexture, ImVec2(64, 64))) {
             selectedItemIndex = i;
             std::cout << "Selected item from grid: " << itemName << " (ID: " << itemId << ")" << std::endl;
+
+            // Add this item to history with its current context
+            if (!itemHistory.empty() && itemHistory.back().itemId != itemId) {
+                itemHistory.push_back({ itemId, currentItemTags, currentTag });
+            }
+            // Update current item tags
+            currentItemTags = dataManager.GetItemTags(itemId);
         }
         if (ImGui::IsItemHovered()) {
             ImGui::BeginTooltip();
@@ -1128,6 +1155,7 @@ void GUIManager::RenderItemsWindow() {
     // Display item details
     if (!currentItems.empty() && selectedItemIndex >= 0 && selectedItemIndex < currentItems.size()) {
         std::string itemId = currentItems[selectedItemIndex];
+        currentItemTags = dataManager.GetItemTags(itemId);
         // Adjust the layout for two columns
         float columnWidth = (ImGui::GetWindowWidth() - 50) / 2;  // Subtracting 50 for padding
         // Capture the cursor position before rendering the stats window
@@ -1156,13 +1184,14 @@ void GUIManager::RenderItemsWindow() {
         ImGui::EndChild();
         // Capture the size of the stats window
         ImVec2 statsWindowSize = ImGui::GetItemRectSize();
-
         float itemDetailsHeight = ImGui::GetItemRectSize().y;  // Get the actual height of the item details section
+        
         // Builds Into column
-        ImGui::SetCursorPos(ImVec2(25 + columnWidth, statsWindowPos.y));  // Align with the top of the stats window
+        ImGui::SetCursorPos(ImVec2(25 + columnWidth, statsWindowPos.y));
         ImGui::BeginChild("BuildsInto", ImVec2(columnWidth - 10, statsWindowSize.y), true);
         ImGui::Text("Builds Into:");
 
+        std::vector<std::string> buildsInto = dataManager.GetItemBuildsInto(itemId);
         std::vector<std::string> buildsInto = dataManager.GetItemBuildsInto(itemId);
         if (!buildsInto.empty()) {
             for (const auto& buildItemId : buildsInto) {
@@ -1170,12 +1199,22 @@ void GUIManager::RenderItemsWindow() {
                     std::string buildItemName = dataManager.GetSpecificItemName(buildItemId);
                     std::string buildItemIconUrl = dataManager.GetItemImageUrl(buildItemId);
                     GLuint buildItemTexture = LoadTextureFromURL(buildItemIconUrl);
-                    // Create the item icons as clickable buttons
                     if (ImGui::ImageButton((void*)(intptr_t)buildItemTexture, ImVec2(32, 32))) {
-                        itemHistory.push_back(itemId);  // Add current item to history
+                        // Add current item to history before navigating
+                        itemHistory.push_back({ itemId, currentItemTags, currentTag });
+
+                        // Update current item
                         currentItems = { buildItemId };
                         selectedItemIndex = 0;
                         comboSelectedIndex = -1;
+
+                        // Update tags for the new item
+                        currentItemTags = dataManager.GetItemTags(buildItemId);
+
+                        // Clear current tag as we're now viewing an individual item
+                        currentTag = "";
+
+                        std::cout << "Selected item from 'Builds Into': " << buildItemName << " (ID: " << buildItemId << ")" << std::endl;
                     }
                     ImGui::SameLine();
                     ImGui::Text("%s", buildItemName.c_str());
@@ -1186,11 +1225,24 @@ void GUIManager::RenderItemsWindow() {
                 }
             }
         }
-        else {
-            ImGui::Text("This item doesn't build into anything.");
-        }
 
         ImGui::EndChild();
+
+        // Display item tags
+        ImGui::Text("Tags:");
+        for (const auto& tag : currentItemTags) {
+            ImGui::SameLine();
+            bool isOriginalTag = (tag == currentTag);
+            if (isOriginalTag) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
+            }
+            if (ImGui::SmallButton(tag.c_str())) {
+                DisplayItemsByTag(tag);
+            }
+            if (isOriginalTag) {
+                ImGui::PopStyleColor();
+            }
+        }
     }
 }
 
@@ -1231,6 +1283,8 @@ void GUIManager::DisplayItemsByTag(const std::string& tag) {
     selectedItemIndex = -1;
     itemHistory.clear();  // Clear history when changing tags
     currentTag = tag;  // Set the current tag
+    comboSelectedIndex = -1;  // Reset combo box selection
+    currentItemTags.clear();  // Clear current item tags
     std::cout << "Items loaded for tag " << tag << ": " << currentItems.size() << std::endl;
 }
 
