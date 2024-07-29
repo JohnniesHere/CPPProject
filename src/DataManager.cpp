@@ -123,9 +123,15 @@ std::vector<std::string> DataManager::GetChampionEnemyTips(const std::string& ch
 bool DataManager::FetchItemData() {
     auto res = itemClient.Get("/riot/lol/resources/latest/en-US/items.json");
     if (res && res->status == 200) {
-        itemData = nlohmann::json::parse(res->body);
-        ProcessItemData();
-        return true;
+        try {
+            itemData = nlohmann::json::parse(res->body);
+            ProcessItemData();
+            std::cout << "Loaded " << itemData.size() << " items" << std::endl;
+            return true;
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Exception parsing item data: " << e.what() << std::endl;
+        }
     }
     std::cerr << "Failed to fetch item data" << std::endl;
     return false;
@@ -181,15 +187,20 @@ const std::vector<std::string>& DataManager::GetItemNames() const {
 
 std::vector<std::string> DataManager::GetItemsByTag(const std::string& tag) const {
     std::vector<std::string> itemsWithTag;
-    for (const auto& [itemId, itemData] : itemData.items()) {
-        if (itemData.contains("shop") && itemData["shop"].contains("tags")) {
-            const auto& tags = itemData["shop"]["tags"];
-            if (std::find(tags.begin(), tags.end(), tag) != tags.end()) {
-                itemsWithTag.push_back(itemId);
+    try {
+        for (const auto& [itemId, itemData] : itemData.items()) {
+            if (itemData.contains("shop") && itemData["shop"].contains("tags")) {
+                const auto& tags = itemData["shop"]["tags"];
+                if (std::find(tags.begin(), tags.end(), tag) != tags.end()) {
+                    itemsWithTag.push_back(itemId);
+                }
             }
         }
+        std::cout << "Found " << itemsWithTag.size() << " items with tag: " << tag << std::endl;
     }
-    std::cout << "Found " << itemsWithTag.size() << " items with tag: " << tag << std::endl;
+    catch (const std::exception& e) {
+        std::cerr << "Exception in GetItemsByTag: " << e.what() << std::endl;
+    }
     return itemsWithTag;
 }
 
