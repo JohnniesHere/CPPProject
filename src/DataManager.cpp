@@ -126,7 +126,7 @@ bool DataManager::FetchItemData() {
         try {
             itemData = nlohmann::json::parse(res->body);
             ProcessItemData();
-            std::cout << "Loaded " << itemData.size() << " items" << std::endl;
+            //std::cout << "Loaded " << itemData.size() << " items" << std::endl;
             return true;
         }
         catch (const std::exception& e) {
@@ -345,4 +345,104 @@ std::string DataManager::GetItemIdFromIconUrl(const std::string& url) const {
 
 bool DataManager::ItemExists(const std::string& itemId) const {
     return itemData.contains(itemId);
+}
+
+
+// Summoner spell window related functions
+static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
+    size_t totalSize = size * nmemb;
+    output->append((char*)contents, totalSize);
+    return totalSize;
+}
+
+bool DataManager::FetchGameModes() {
+    CURL* curl = curl_easy_init();
+    if (!curl) {
+        std::cerr << "Failed to initialize curl" << std::endl;
+        return false;
+    }
+
+    std::string response;
+    curl_easy_setopt(curl, CURLOPT_URL, "https://static.developer.riotgames.com/docs/lol/gameModes.json");
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+    CURLcode res = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+
+    if (res != CURLE_OK) {
+        std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+        return false;
+    }
+
+    try {
+        auto json = nlohmann::json::parse(response);
+        gameModes.clear();
+        gameModes.push_back({ "All Game Modes", "Showing all Summoner's Spells from all game modes." });
+        for (const auto& mode : json) {
+            gameModes.push_back({
+                mode["gameMode"].get<std::string>(),
+                mode["description"].get<std::string>()
+                });
+        }
+        std::cout << "Successfully fetched " << gameModes.size() << " game modes" << std::endl;
+        return true;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Exception in parsing JSON: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+const std::vector<DataManager::GameMode>& DataManager::GetGameModes() const {
+    return gameModes;
+}
+
+bool DataManager::FetchSummonerSpells() {
+    CURL* curl = curl_easy_init();
+    if (curl) {
+        std::string url = "https://ddragon.leagueoflegends.com/cdn/14.14.1/data/en_US/summoner.json";
+        std::string response;
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+        CURLcode res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        if (res == CURLE_OK) {
+            auto json = nlohmann::json::parse(response);
+            summonerSpells.clear();
+            for (const auto& [key, value] : json["data"].items()) {
+                SummonerSpell spell;
+                spell.id = value["id"];
+                spell.name = value["name"];
+                spell.description = value["description"];
+                spell.modes = value["modes"].get<std::vector<std::string>>();
+                spell.cooldownBurn = value["cooldownBurn"];
+                spell.summonerLevel = value["summonerLevel"];
+                summonerSpells.push_back(spell);
+            }
+            return true;
+        }
+    }
+    std::cerr << "Failed to fetch summoner spells" << std::endl;
+    return false;
+}
+
+const std::vector<DataManager::SummonerSpell>& DataManager::GetSummonerSpells() const {
+    return summonerSpells;
+}
+
+std::vector<DataManager::SummonerSpell> DataManager::GetSummonerSpellsForMode(const std::string& mode) const {
+    if (mode == "All Game Modes") {
+        return summonerSpells;
+    }
+    std::vector<SummonerSpell> filteredSpells;
+    for (const auto& spell : summonerSpells) {
+        if (std::find(spell.modes.begin(), spell.modes.end(), mode) != spell.modes.end()) {
+            filteredSpells.push_back(spell);
+        }
+    }
+    return filteredSpells;
 }
