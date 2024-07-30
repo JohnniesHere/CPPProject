@@ -116,7 +116,9 @@ private:
     // Item window related
     struct ItemHistoryEntry {
         std::string itemId;
-        std::vector<std::string> tags;
+        std::string tag;
+        bool isTagView;
+        int selectedIndex;  
     };
 
     std::vector<std::string> currentItemTags;
@@ -130,8 +132,11 @@ private:
     bool showSupportItems = false;
     int selectedItemIndex = -1;
     std::map<std::string, GLuint> itemTextures;
-    std::vector<ItemHistoryEntry> itemHistory;
+    std::vector<ItemHistoryEntry> backwardHistory;
+    std::vector<ItemHistoryEntry> forwardHistory;
     std::string currentTag;
 
     GLuint LoadTextureFromURL(const std::string& url);
+    void DisplayItem(const std::string& itemId);
+    void UpdateItemState(const std::string& itemId, const std::string& tag, bool isTagView, int selectedIndex); 
 };
