@@ -12,7 +12,9 @@ int main()
 
     while (!gui.ShouldClose())
     {
+        
         gui.Render();
+        
     }
 
     return 0;
