@@ -46,6 +46,8 @@ public:
     nlohmann::json GetItemStats(const std::string& itemId) const;
     nlohmann::json GetItemData(const std::string& itemId) const;
     nlohmann::json GetItemShopInfo(const std::string& itemId) const;
+    std::vector<std::string> GetAllItemIds() const;
+    std::string GetItemIdFromIconUrl(const std::string& url) const;
 
 private:
     mutable httplib::Client client;
