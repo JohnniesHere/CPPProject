@@ -126,7 +126,7 @@ bool DataManager::FetchItemData() {
         try {
             itemData = nlohmann::json::parse(res->body);
             ProcessItemData();
-            std::cout << "Loaded " << itemData.size() << " items" << std::endl;
+            //std::cout << "Loaded " << itemData.size() << " items" << std::endl;
             return true;
         }
         catch (const std::exception& e) {
@@ -419,6 +419,8 @@ bool DataManager::FetchSummonerSpells() {
                 spell.name = value["name"];
                 spell.description = value["description"];
                 spell.modes = value["modes"].get<std::vector<std::string>>();
+                spell.cooldownBurn = value["cooldownBurn"];
+                spell.summonerLevel = value["summonerLevel"];
                 summonerSpells.push_back(spell);
             }
             return true;

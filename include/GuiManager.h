@@ -40,6 +40,8 @@ private:
     GLuint LoadTexture(const char* filename);
     GLuint championSplashTexture;
     GLuint championIconTexture;
+    ImFont* smallFont;
+    ImFont* defaultFont;
 
     float buttonHeight;
     float windowOffset;

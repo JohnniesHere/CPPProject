@@ -63,6 +63,8 @@ public:
         std::string name;
         std::string description;
         std::vector<std::string> modes;
+        std::string cooldownBurn;
+        int summonerLevel;
     };
     bool FetchSummonerSpells();
     const std::vector<SummonerSpell>& GetSummonerSpells() const;
