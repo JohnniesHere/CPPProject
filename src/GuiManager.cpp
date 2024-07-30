@@ -46,14 +46,24 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 	if (!glfwInit())
 		return false;
 
+<<<<<<< HEAD
 	glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+=======
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    glfwSwapInterval(1); 
+>>>>>>> develop
 
 	window = glfwCreateWindow(width, height, title, NULL, NULL);
 	if (window == NULL)
 		return false;
 
+<<<<<<< HEAD
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
+=======
+    glfwMakeContextCurrent(window);
+    
+>>>>>>> develop
 
 	windowSize = ImVec2(width, height);
 
@@ -98,6 +108,18 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 	return true;
 }
 
+void GUIManager::HandleDragging() {
+    if (ImGui::IsMouseDragging(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem)) {
+        ImVec2 delta = ImGui::GetMouseDragDelta(0);
+        if (delta.x != 0 || delta.y != 0) {
+            int x, y;
+            glfwGetWindowPos(window, &x, &y);
+            glfwSetWindowPos(window, x + delta.x, y + delta.y);
+            ImGui::ResetMouseDragDelta(0);
+        }
+    }
+}
+
 void GUIManager::Render() {
 	glfwPollEvents();
 
@@ -105,6 +127,7 @@ void GUIManager::Render() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
+<<<<<<< HEAD
 	// Handle window dragging
 	if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
 	{
@@ -125,6 +148,10 @@ void GUIManager::Render() {
 		glfwSetWindowPos(window, x + delta.x, y + delta.y);
 		dragStartPos = ImGui::GetMousePos();
 	}
+=======
+
+    HandleDragging();
+>>>>>>> develop
 
 	RenderBackground();
 	RenderGUI();
