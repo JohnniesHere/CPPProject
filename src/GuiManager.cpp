@@ -68,15 +68,21 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
 	ApplyCustomStyles();
-
-	// Load and set the custom font
 	ImGuiIO& io = ImGui::GetIO();
-	ImFont* font = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\CPPProject\\assets\\recharge bd.ttf", 14.0f);
-	if (font == nullptr) {
-		std::cerr << "Failed to load custom font" << std::endl;
+	// Load and set the custom font
+	// Load the default font
+		defaultFont = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\CPPProject\\assets\\recharge bd.ttf", 14.0f);
+	if (defaultFont == nullptr) {
+		std::cerr << "Failed to load default font" << std::endl;
 		return false;
 	}
-	io.FontDefault = font;
+
+	// Load a smaller version of the same font for tags
+	smallFont = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\CPPProject\\assets\\recharge bd.ttf", 10.0f);
+	if (smallFont == nullptr) {
+		std::cerr << "Failed to load small font" << std::endl;
+		return false;
+	}
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 130");
@@ -1423,8 +1429,7 @@ void GUIManager::RenderSummonerSpellsWindow() {
 		selectedGameModeIndex >= 0 && selectedGameModeIndex < gameModes.size()
 		? gameModes[selectedGameModeIndex].mode.c_str()
 		: "Select Game Mode"))
-	{
-		// Search input field
+	{// Search input field
 		ImGui::PushItemWidth(-1);
 		ImGui::SetCursorPos(ImVec2(10, 10));
 		ImGui::InputText("##GameModeSearch", gameModeSearchBuffer, IM_ARRAYSIZE(gameModeSearchBuffer));
@@ -1446,12 +1451,6 @@ void GUIManager::RenderSummonerSpellsWindow() {
 					selectedGameModeIndex = i;
 				}
 
-				if (ImGui::IsItemHovered()) {
-					ImGui::BeginTooltip();
-					ImGui::Text("%s", gameMode.description.c_str());
-					ImGui::EndTooltip();
-				}
-
 				if (is_selected) {
 					ImGui::SetItemDefaultFocus();
 				}
@@ -1460,8 +1459,9 @@ void GUIManager::RenderSummonerSpellsWindow() {
 		ImGui::EndCombo();
 	}
 
-	// Display selected game mode
+	// Display selected game mode description on the same line
 	if (selectedGameModeIndex >= 0 && selectedGameModeIndex < gameModes.size()) {
+		ImGui::SameLine();
 		ImGui::Text("MODE: %s", gameModes[selectedGameModeIndex].description.c_str());
 
 		// Display summoner spells for the selected mode
@@ -1471,35 +1471,105 @@ void GUIManager::RenderSummonerSpellsWindow() {
 		ImGui::NewLine();
 
 		if (spells.empty()) {
+			ImGui::SetCursorPosX(25); // 25px indent
 			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "This game mode does not allow the use of Summoner Spells.");
 		}
 		else {
-			ImGui::Text("Summoner Spells for %s:", selectedMode.c_str());
+			ImGui::SetCursorPosX(25); // 25px indent
+			ImGui::Text("Summoner Spells Available in %s mode:", selectedMode.c_str());
 			ImGui::NewLine();
 
 			float windowWidth = ImGui::GetWindowWidth();
 			float iconSize = 64.0f;
 			float padding = 10.0f;
-			int iconsPerRow = static_cast<int>((windowWidth - padding) / (iconSize + padding));
+			int iconsPerRow = 13; // Limit to 13 icons per row
+			float leftOffset = 25.0f; // 25 pixels offset from the left
+
+			static int selectedSpellIndex = -1;
 
 			for (size_t i = 0; i < spells.size(); ++i) {
+				if (i % iconsPerRow == 0) {
+					// Start a new row
+					ImGui::NewLine();
+					ImGui::SetCursorPosX(leftOffset); // Set left offset
+				}
+				else if (i > 0) {
+					ImGui::SameLine(0, padding);
+				}
+
 				const auto& spell = spells[i];
 				GLuint texture = LoadSummonerSpellTexture(spell.id);
 
-				if (i % iconsPerRow != 0) {
-					ImGui::SameLine();
-				}
-
+				ImGui::PushID(static_cast<int>(i));
 				if (ImGui::ImageButton((void*)(intptr_t)texture, ImVec2(iconSize, iconSize))) {
-					// Handle spell selection here
+					selectedSpellIndex = static_cast<int>(i);
 				}
+				ImGui::PopID();
 
 				if (ImGui::IsItemHovered()) {
 					ImGui::BeginTooltip();
 					ImGui::Text("%s", spell.name.c_str());
-					ImGui::Text("%s", spell.description.c_str());
 					ImGui::EndTooltip();
 				}
+			}
+
+			// Display chat box for selected spell
+			if (selectedSpellIndex >= 0 && selectedSpellIndex < spells.size()) {
+				const auto& selectedSpell = spells[selectedSpellIndex];
+				ImGui::NewLine();
+				ImGui::SetCursorPosX(25); // 25px indent
+				ImGui::BeginChild("SpellDetails", ImVec2(windowWidth - 50, 100), true);
+				ImGui::Text("Name: %s", selectedSpell.name.c_str());
+				ImGui::Text("Summoner Level required to unlock: %d", selectedSpell.summonerLevel);
+				ImGui::TextWrapped("Description: %s", selectedSpell.description.c_str());
+				ImGui::Text("Cooldown: %s", selectedSpell.cooldownBurn.c_str());
+				ImGui::EndChild();
+
+				// Display game mode tags as small buttons
+				ImGui::NewLine();
+				ImGui::SetCursorPosX(25); // 25px indent
+				ImGui::Text("Available in:");
+				ImGui::SameLine();
+
+				float startX = ImGui::GetCursorPosX(); // Remember the starting X position
+				float currentLineWidth = startX;
+				float maxLineWidth = windowWidth - 50; // Adjusted for the indent
+				float newLineIndent = 0.0f; // Indent for new lines
+
+				// Push a smaller font for the tags
+				ImGui::PushFont(smallFont);
+
+				for (const auto& mode : selectedSpell.modes) {
+					// Calculate button size based on text
+					ImVec2 textSize = ImGui::CalcTextSize(mode.c_str());
+					float buttonWidth = textSize.x + 20.0f; // Add some padding
+					float buttonHeight = textSize.y + 16.0f; // Increase vertical padding
+
+					float buttonAndSpacingWidth = buttonWidth + ImGui::GetStyle().ItemSpacing.x;
+					if (currentLineWidth + buttonAndSpacingWidth > maxLineWidth) {
+						ImGui::NewLine();
+						ImGui::SetCursorPosX(startX + newLineIndent); // Set the cursor 100 pixels to the right
+						currentLineWidth = startX + newLineIndent;
+					}
+
+					ImGui::AlignTextToFramePadding(); // This helps center the text vertically
+					if (ImGui::Button(mode.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+						// Find the index of the selected game mode
+						auto it = std::find_if(gameModes.begin(), gameModes.end(),
+							[&mode](const DataManager::GameMode& gm) { return gm.mode == mode; });
+						if (it != gameModes.end()) {
+							selectedGameModeIndex = std::distance(gameModes.begin(), it);
+						}
+					}
+					currentLineWidth += buttonAndSpacingWidth;
+					ImGui::SameLine();
+				}
+
+
+				ImGui::NewLine();
+
+				// Pop the smaller font
+				ImGui::PopFont();
 			}
 		}
 	}
