@@ -399,7 +399,7 @@ void GUIManager::RenderGUI() {
 		RenderItemsWindow();
 		break;
 	case WindowState::SummonerSpells:
-		ImGui::Text("This feature is not implemented yet.");
+		RenderSummonerSpellsWindow();
 		break;
 	default:
 		RenderDefaultWindow();
@@ -1377,4 +1377,141 @@ void GUIManager::UpdateItemState(const std::string& itemId, const std::string& t
 	selectedItemIndex = selectedIndex;
 	currentTag = tag;
 	comboSelectedIndex = -1;
+}
+
+
+
+// Summoner's Spells page
+void GUIManager::RenderSummonerSpellsWindow() {
+	// Fetch game modes if not already done
+	static bool gameModesLoaded = false;
+	static bool fetchFailed = false;
+	if (!gameModesLoaded && !fetchFailed) {
+		ImGui::Text("Fetching game modes...");
+		if (dataManager.FetchGameModes() && dataManager.FetchSummonerSpells()) {
+			gameModesLoaded = true;
+		}
+		else {
+			fetchFailed = true;
+			ImGui::Text("Failed to load data. Please try again later.");
+			if (ImGui::Button("Retry")) {
+				fetchFailed = false;
+			}
+			return;
+		}
+	}
+
+	if (fetchFailed) {
+		ImGui::Text("Failed to load data. Please try again later.");
+		if (ImGui::Button("Retry")) {
+			fetchFailed = false;
+		}
+		return;
+	}
+
+	const auto& gameModes = dataManager.GetGameModes();
+
+	if (gameModes.empty()) {
+		ImGui::Text("No game modes available.");
+		return;
+	}
+
+	// Game mode selection combo box
+	ImGui::SetNextItemWidth(300);
+	ImGui::SetCursorPos(ImVec2(10, 5));
+	if (ImGui::BeginCombo("##GameModeSelect",
+		selectedGameModeIndex >= 0 && selectedGameModeIndex < gameModes.size()
+		? gameModes[selectedGameModeIndex].mode.c_str()
+		: "Select Game Mode"))
+	{
+		// Search input field
+		ImGui::PushItemWidth(-1);
+		ImGui::SetCursorPos(ImVec2(10, 10));
+		ImGui::InputText("##GameModeSearch", gameModeSearchBuffer, IM_ARRAYSIZE(gameModeSearchBuffer));
+		ImGui::PopItemWidth();
+		ImGui::Separator();
+
+		for (int i = 0; i < gameModes.size(); i++) {
+			const auto& gameMode = gameModes[i];
+
+			// Convert search and game mode to lowercase for case-insensitive comparison
+			std::string search = gameModeSearchBuffer;
+			std::string mode = gameMode.mode;
+			std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+			std::transform(mode.begin(), mode.end(), mode.begin(), ::tolower);
+
+			if (mode.find(search) != std::string::npos) {
+				bool is_selected = (selectedGameModeIndex == i);
+				if (ImGui::Selectable(gameMode.mode.c_str(), is_selected)) {
+					selectedGameModeIndex = i;
+				}
+
+				if (ImGui::IsItemHovered()) {
+					ImGui::BeginTooltip();
+					ImGui::Text("%s", gameMode.description.c_str());
+					ImGui::EndTooltip();
+				}
+
+				if (is_selected) {
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+		}
+		ImGui::EndCombo();
+	}
+
+	// Display selected game mode
+	if (selectedGameModeIndex >= 0 && selectedGameModeIndex < gameModes.size()) {
+		ImGui::Text("MODE: %s", gameModes[selectedGameModeIndex].description.c_str());
+
+		// Display summoner spells for the selected mode
+		const std::string& selectedMode = gameModes[selectedGameModeIndex].mode;
+		auto spells = dataManager.GetSummonerSpellsForMode(selectedMode);
+
+		ImGui::NewLine();
+
+		if (spells.empty()) {
+			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "This game mode does not allow the use of Summoner Spells.");
+		}
+		else {
+			ImGui::Text("Summoner Spells for %s:", selectedMode.c_str());
+			ImGui::NewLine();
+
+			float windowWidth = ImGui::GetWindowWidth();
+			float iconSize = 64.0f;
+			float padding = 10.0f;
+			int iconsPerRow = static_cast<int>((windowWidth - padding) / (iconSize + padding));
+
+			for (size_t i = 0; i < spells.size(); ++i) {
+				const auto& spell = spells[i];
+				GLuint texture = LoadSummonerSpellTexture(spell.id);
+
+				if (i % iconsPerRow != 0) {
+					ImGui::SameLine();
+				}
+
+				if (ImGui::ImageButton((void*)(intptr_t)texture, ImVec2(iconSize, iconSize))) {
+					// Handle spell selection here
+				}
+
+				if (ImGui::IsItemHovered()) {
+					ImGui::BeginTooltip();
+					ImGui::Text("%s", spell.name.c_str());
+					ImGui::Text("%s", spell.description.c_str());
+					ImGui::EndTooltip();
+				}
+			}
+		}
+	}
+}
+
+GLuint GUIManager::LoadSummonerSpellTexture(const std::string& spellId) {
+	if (summonerSpellTextures.find(spellId) != summonerSpellTextures.end()) {
+		return summonerSpellTextures[spellId];
+	}
+
+	std::string url = "https://ddragon.leagueoflegends.com/cdn/14.14.1/img/spell/" + spellId + ".png";
+	GLuint texture = LoadTextureFromURL(url);
+	summonerSpellTextures[spellId] = texture;
+	return texture;
 }
