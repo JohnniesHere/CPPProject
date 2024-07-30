@@ -41,7 +41,6 @@ private:
     GLuint championSplashTexture;
     GLuint championIconTexture;
 
-
     float buttonHeight;
     float windowOffset;
 
@@ -115,7 +114,14 @@ private:
     std::atomic<bool> hasRandomChampion;
 
     // Item window related
+    struct ItemHistoryEntry {
+        std::string itemId;
+        std::vector<std::string> tags;
+    };
+
+    std::vector<std::string> currentItemTags;
     std::vector<std::string> currentItems;
+    int comboSelectedIndex = -1;
     bool showFighterItems = false;
     bool showMarksmanItems = false;
     bool showAssassinItems = false;
@@ -124,7 +130,8 @@ private:
     bool showSupportItems = false;
     int selectedItemIndex = -1;
     std::map<std::string, GLuint> itemTextures;
+    std::vector<ItemHistoryEntry> itemHistory;
+    std::string currentTag;
 
     GLuint LoadTextureFromURL(const std::string& url);
-
 };
