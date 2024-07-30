@@ -123,9 +123,15 @@ std::vector<std::string> DataManager::GetChampionEnemyTips(const std::string& ch
 bool DataManager::FetchItemData() {
     auto res = itemClient.Get("/riot/lol/resources/latest/en-US/items.json");
     if (res && res->status == 200) {
-        itemData = nlohmann::json::parse(res->body);
-        ProcessItemData();
-        return true;
+        try {
+            itemData = nlohmann::json::parse(res->body);
+            ProcessItemData();
+            std::cout << "Loaded " << itemData.size() << " items" << std::endl;
+            return true;
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Exception parsing item data: " << e.what() << std::endl;
+        }
     }
     std::cerr << "Failed to fetch item data" << std::endl;
     return false;
@@ -181,15 +187,20 @@ const std::vector<std::string>& DataManager::GetItemNames() const {
 
 std::vector<std::string> DataManager::GetItemsByTag(const std::string& tag) const {
     std::vector<std::string> itemsWithTag;
-    for (const auto& [itemId, itemData] : itemData.items()) {
-        if (itemData.contains("shop") && itemData["shop"].contains("tags")) {
-            const auto& tags = itemData["shop"]["tags"];
-            if (std::find(tags.begin(), tags.end(), tag) != tags.end()) {
-                itemsWithTag.push_back(itemId);
+    try {
+        for (const auto& [itemId, itemData] : itemData.items()) {
+            if (itemData.contains("shop") && itemData["shop"].contains("tags")) {
+                const auto& tags = itemData["shop"]["tags"];
+                if (std::find(tags.begin(), tags.end(), tag) != tags.end()) {
+                    itemsWithTag.push_back(itemId);
+                }
             }
         }
+        std::cout << "Found " << itemsWithTag.size() << " items with tag: " << tag << std::endl;
     }
-    std::cout << "Found " << itemsWithTag.size() << " items with tag: " << tag << std::endl;
+    catch (const std::exception& e) {
+        std::cerr << "Exception in GetItemsByTag: " << e.what() << std::endl;
+    }
     return itemsWithTag;
 }
 
@@ -220,7 +231,6 @@ std::string DataManager::GetItemDescription(const std::string& itemId) const {
     return "No description available";
 }
 
-
 std::vector<std::string> DataManager::GetItemBuildsFrom(const std::string& itemId) const {
     FetchSpecificItemData(itemId);
     std::vector<std::string> buildsFrom;
@@ -231,16 +241,30 @@ std::vector<std::string> DataManager::GetItemBuildsFrom(const std::string& itemI
     }
     return buildsFrom;
 }
+
 std::vector<std::string> DataManager::GetItemBuildsInto(const std::string& itemId) const {
-    FetchSpecificItemData(itemId);
     std::vector<std::string> buildsInto;
-    if (specificItemData.at(itemId).contains("buildsInto")) {
-        for (const auto& item : specificItemData.at(itemId)["buildsInto"]) {
-            buildsInto.push_back(item.get<std::string>());
+    try {
+        FetchSpecificItemData(itemId);
+        if (specificItemData.at(itemId).contains("buildsInto") &&
+            specificItemData.at(itemId)["buildsInto"].is_array()) {
+            for (const auto& buildItem : specificItemData.at(itemId)["buildsInto"]) {
+                if (buildItem.is_string()) {
+                    buildsInto.push_back(buildItem.get<std::string>());
+                }
+                else if (buildItem.is_number()) {
+                    // Convert number to string
+                    buildsInto.push_back(std::to_string(buildItem.get<int>()));
+                }
+            }
         }
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error in GetItemBuildsInto for item " << itemId << ": " << e.what() << std::endl;
     }
     return buildsInto;
 }
+
 int DataManager::GetItemCost(const std::string& itemId) const {
     if (itemData.contains(itemId) && itemData[itemId].contains("shop") &&
         itemData[itemId]["shop"].contains("prices") &&
@@ -250,7 +274,6 @@ int DataManager::GetItemCost(const std::string& itemId) const {
     return -1;
 }
 
-
 int DataManager::GetItemSellPrice(const std::string& itemId) const {
     FetchSpecificItemData(itemId);
     if (specificItemData.at(itemId).contains("shop") && specificItemData.at(itemId)["shop"].contains("prices")) {
@@ -258,6 +281,7 @@ int DataManager::GetItemSellPrice(const std::string& itemId) const {
     }
     return -1;  // Return a default value or handle the case where the sell price is not available
 }
+
 bool DataManager::IsItemPurchasable(const std::string& itemId) const {
     FetchSpecificItemData(itemId);
     if (specificItemData.at(itemId).contains("shop")) {
@@ -265,6 +289,7 @@ bool DataManager::IsItemPurchasable(const std::string& itemId) const {
     }
     return false;  // Default value if the key is not found
 }
+
 std::vector<std::string> DataManager::GetItemTags(const std::string& itemId) const {
     FetchSpecificItemData(itemId);
     std::vector<std::string> tags;
@@ -275,13 +300,13 @@ std::vector<std::string> DataManager::GetItemTags(const std::string& itemId) con
     }
     return tags;
 }
+
 nlohmann::json DataManager::GetItemStats(const std::string& itemId) const {
     if (itemData.contains(itemId) && itemData[itemId].contains("stats")) {
         return itemData[itemId]["stats"];
     }
     return nlohmann::json::object();
 }
-
 
 nlohmann::json DataManager::GetItemData(const std::string& itemId) const {
     FetchSpecificItemData(itemId);
@@ -290,10 +315,28 @@ nlohmann::json DataManager::GetItemData(const std::string& itemId) const {
     }
     return {};  // Return an empty JSON object if the item is not found
 }
+
 nlohmann::json DataManager::GetItemShopInfo(const std::string& itemId) const {
     FetchSpecificItemData(itemId);
     if (specificItemData.at(itemId).contains("shop")) {
         return specificItemData.at(itemId)["shop"];
     }
     return {};  // Return an empty JSON object if the shop info is not found
+}
+
+std::vector<std::string> DataManager::GetAllItemIds() const {
+    std::vector<std::string> ids;
+    for (const auto& [id, item] : itemData.items()) {
+        ids.push_back(id);
+    }
+    return ids;
+}
+
+std::string DataManager::GetItemIdFromIconUrl(const std::string& url) const {
+    for (const auto& [id, item] : itemData.items()) {
+        if (item["icon"] == url) {
+            return id;
+        }
+    }
+    return "";
 }
