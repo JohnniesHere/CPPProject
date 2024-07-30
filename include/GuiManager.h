@@ -24,6 +24,7 @@ public:
     ~GUIManager();
 
     bool Initialize(int width, int height, const char* title);
+    void HandleDragging();
     bool ShouldClose();
     void Render();
     void Cleanup();
