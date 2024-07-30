@@ -48,6 +48,7 @@ public:
     nlohmann::json GetItemShopInfo(const std::string& itemId) const;
     std::vector<std::string> GetAllItemIds() const;
     std::string GetItemIdFromIconUrl(const std::string& url) const;
+    bool ItemExists(const std::string& itemId) const;
 
 private:
     mutable httplib::Client client;
@@ -63,6 +64,7 @@ private:
     mutable std::map<std::string, nlohmann::json> specificItemData;
     mutable std::vector<std::string> itemNames;
     mutable std::map<std::string, std::string> itemNameToIdMap;
+    const std::set<std::string> validTags = { "FIGHTER", "ASSASSIN", "MARKSMAN", "MAGE", "TANK", "SUPPORT" };
 
     void ProcessItemData();
 };
