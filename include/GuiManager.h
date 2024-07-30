@@ -138,5 +138,17 @@ private:
 
     GLuint LoadTextureFromURL(const std::string& url);
     void DisplayItem(const std::string& itemId);
-    void UpdateItemState(const std::string& itemId, const std::string& tag, bool isTagView, int selectedIndex); 
+    void UpdateItemState(const std::string& itemId, const std::string& tag, bool isTagView, int selectedIndex);
+
+
+
+
+    // Summoner Spells window related
+    void RenderSummonerSpellsWindow();
+    int selectedGameModeIndex = -1;
+    char gameModeSearchBuffer[256] = "";
+    std::map<std::string, GLuint> summonerSpellTextures;
+    GLuint LoadSummonerSpellTexture(const std::string& spellId);
+
+
 };

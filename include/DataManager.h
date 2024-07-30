@@ -5,6 +5,7 @@
 #include <map>
 #include <nlohmann/json.hpp>
 #include <httplib.h>
+#include <curl/curl.h>
 
 class DataManager {
 public:
@@ -50,6 +51,25 @@ public:
     std::string GetItemIdFromIconUrl(const std::string& url) const;
     bool ItemExists(const std::string& itemId) const;
 
+    // Summoner spell window related functions
+    struct GameMode {
+        std::string mode;
+        std::string description;
+    };
+    bool FetchGameModes();
+    const std::vector<GameMode>& GetGameModes() const;
+    struct SummonerSpell {
+        std::string id;
+        std::string name;
+        std::string description;
+        std::vector<std::string> modes;
+    };
+    bool FetchSummonerSpells();
+    const std::vector<SummonerSpell>& GetSummonerSpells() const;
+    std::vector<SummonerSpell> GetSummonerSpellsForMode(const std::string& mode) const;
+
+
+
 private:
     mutable httplib::Client client;
     nlohmann::json championData;
@@ -67,4 +87,8 @@ private:
     const std::set<std::string> validTags = { "FIGHTER", "ASSASSIN", "MARKSMAN", "MAGE", "TANK", "SUPPORT" };
 
     void ProcessItemData();
+
+    // Summoner spell window related
+    std::vector<GameMode> gameModes;
+    std::vector<SummonerSpell> summonerSpells;
 };
