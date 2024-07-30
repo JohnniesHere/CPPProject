@@ -579,11 +579,12 @@ void GUIManager::RenderChampionsWindow() {
 		ImGui::SetCursorPos(ImVec2(10, 120));
 		ImGui::BeginChild("ChampionInfo", ImVec2(300, 500), true, ImGuiWindowFlags_NoScrollbar);
 
+
 		nlohmann::json stats = dataManager.GetChampionStats(championName);
 		std::string title = dataManager.GetChampionTitle(championName);
 		std::string lore = dataManager.GetChampionLore(championName);
 		auto tags = dataManager.GetChampionTags(championName);
-
+		ImGui::Indent(5.0f);
 		ImGui::Text("Champion: %s", championName.c_str());
 		ImGui::Text("Title: %s", title.c_str());
 		ImGui::Text("Tags: ");
@@ -600,16 +601,16 @@ void GUIManager::RenderChampionsWindow() {
 		ImGui::Text("Attack Speed: %.3f (+ %.1f%% per level)", stats["attackspeed"].get<float>(), stats["attackspeedperlevel"].get<float>());
 		ImGui::Text("Attack Range: %.0f", stats["attackrange"].get<float>());
 		ImGui::Text("HP Regen: %.1f (+ %.1f per level)", stats["hpregen"].get<float>(), stats["hpregenperlevel"].get<float>());
-
+		ImGui::Unindent(5.0f);
 		ImGui::EndChild();
 
 		// Display champion lore
 		ImGui::SetCursorPos(ImVec2(320, 120));  // Adjust position as needed
 		ImGui::BeginChild("ChampionLore", ImVec2(ImGui::GetWindowWidth() - 330, 100), true, ImGuiWindowFlags_HorizontalScrollbar);
 
-
+		ImGui::Indent(5.0f);
 		ImGui::TextWrapped("%s", lore.c_str());
-
+		ImGui::Unindent(5.0f);
 		ImGui::EndChild();
 
 		// Load and display skill icons
@@ -620,48 +621,51 @@ void GUIManager::RenderChampionsWindow() {
 		// Display skill icons and buttons
 		ImGui::SetCursorPos(ImVec2(320, 230));
 		std::string skillNames[] = { "Passive", "Q", "W", "E", "R" };
+		float buttonWidth = 80.0f;
+		float buttonHeight = 35.0f;
+		float iconSize = 75.0f;
+		float spacing = 15;
+
 		for (int i = 0; i < 5; ++i) {
+			if (i > 0) ImGui::SameLine(0, spacing);
+
 			ImGui::BeginGroup();
 			if (skillTextures[i] != 0) {
-				ImGui::Image((void*)(intptr_t)skillTextures[i], ImVec2(75, 75));
+				ImGui::Image((void*)(intptr_t)skillTextures[i], ImVec2(iconSize, iconSize));
 			}
-			std::string buttonLabel = (i == 0) ? "Passive" : skillNames[i] + " Ability";
 
-			// Check if this skill is currently selected
+			std::string buttonLabel = (i == 0) ? "Passive" : skillNames[i] + " Ability";
 			bool isSelected = (selectedSkill == (i == 0 ? "Passive" : championId + " " + skillNames[i]));
 
-			// Use PushStyleColor to change button color if selected
 			if (isSelected) {
-				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8431f, 0.7255f, 0.4745f, 1.0f)); // Green color for selected skill
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8431f, 0.7255f, 0.4745f, 1.0f));
 			}
 
-			if (ImGui::Button(buttonLabel.c_str(), ImVec2(75, 35))) {
+			if (ImGui::Button(buttonLabel.c_str(), ImVec2(buttonWidth, buttonHeight))) {
 				if (isSelected) {
-					// If already selected, deselect it
 					selectedSkill = "";
 					skillDescription = "";
 				}
 				else {
-					// Select this skill
 					selectedSkill = (i == 0) ? "Passive" : championId + " " + skillNames[i];
 					skillDescription = skillDescriptions[selectedSkill];
 				}
 			}
 
-			// Pop the style color if we pushed it
 			if (isSelected) {
 				ImGui::PopStyleColor();
 			}
 
 			ImGui::EndGroup();
-			if (i < 4) ImGui::SameLine(0, 20);
 		}
 
 		// Display skill description
 		if (!selectedSkill.empty()) {
 			ImGui::SetCursorPos(ImVec2(320, 360)); // Adjusted position
 			ImGui::BeginChild("SkillDescription", ImVec2(ImGui::GetWindowWidth() - 330, 70), true, ImGuiWindowFlags_HorizontalScrollbar);
+			ImGui::Indent(5.0f);
 			ImGui::TextWrapped("%s", skillDescription.c_str());
+			ImGui::Unindent(5.0f);
 			ImGui::EndChild();
 		}
 
@@ -696,7 +700,9 @@ void GUIManager::RenderChampionsWindow() {
 				// Display skin name in a chat box style
 				ImGui::SetCursorPos(ImVec2(390, 580)); // Adjusted position
 				ImGui::BeginChild("SkinName", ImVec2(240, 40), true);
+				ImGui::Indent(5.0f);
 				ImGui::Text("%s", skinName.c_str());
+				ImGui::Unindent(5.0f);
 				ImGui::EndChild();
 
 				// Navigation buttons outside the chat box
@@ -740,6 +746,7 @@ void GUIManager::RenderChampionsWindow() {
 
 			ImGui::SetCursorPos(ImVec2(795, 440));
 			ImGui::BeginChild("AllyTip", ImVec2(240, 90), true);
+			ImGui::Indent(5.0f);
 			if (!allyTips.empty()) {
 				size_t index = allyTipIndices[currentAllyTipIndex];
 				ImGui::TextWrapped("%s", allyTips[index].c_str());
@@ -747,6 +754,7 @@ void GUIManager::RenderChampionsWindow() {
 			else {
 				ImGui::TextWrapped("No ally tips available for this champion.");
 			}
+			ImGui::Unindent(5.0f);
 			ImGui::EndChild();
 		}
 
@@ -773,6 +781,7 @@ void GUIManager::RenderChampionsWindow() {
 
 			ImGui::SetCursorPos(ImVec2(795, 575));
 			ImGui::BeginChild("EnemyTip", ImVec2(240, 80), true);
+			ImGui::Indent(5.0f);
 			if (!enemyTips.empty()) {
 				size_t index = enemyTipIndices[currentEnemyTipIndex];
 				ImGui::TextWrapped("%s", enemyTips[index].c_str());
@@ -780,6 +789,7 @@ void GUIManager::RenderChampionsWindow() {
 			else {
 				ImGui::TextWrapped("No enemy tips available for this champion.");
 			}
+			ImGui::Indent(5.0f);
 			ImGui::EndChild();
 		}
 	}
@@ -1032,7 +1042,6 @@ void GUIManager::RandomizeChampion() {
 }
 
 // Item window functions implementation
-
 void GUIManager::RenderItemsWindow() {
 	const auto& itemNames = dataManager.GetItemNames();
 	if (itemNames.empty()) {
@@ -1044,144 +1053,139 @@ void GUIManager::RenderItemsWindow() {
 	ImGui::SetNextItemWidth(300);
 	ImGui::SetCursorPos(ImVec2(10, 5));
 
-	// Start item select combo box for individual items
-	if (ImGui::BeginCombo("##ItemSelect",
-		(comboSelectedIndex >= 0 && comboSelectedIndex < itemNames.size())
-		? itemNames[comboSelectedIndex].c_str()
-		: "Select Item")) {
+	// Set custom colors
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
 
+	// Item select combo box
+	if (ImGui::BeginCombo("##ItemSelect", (comboSelectedIndex >= 0 && comboSelectedIndex < itemNames.size()) ? itemNames[comboSelectedIndex].c_str() : "Select Item")) {
 		ImGui::PushItemWidth(-1);
 		ImGui::SetCursorPos(ImVec2(10, 10));
-		if (ImGui::InputText("##Search", searchBuffer, IM_ARRAYSIZE(searchBuffer))) {
-			std::string search = searchBuffer;
-			std::transform(search.begin(), search.end(), search.begin(), ::tolower);
-		}
+		ImGui::InputText("##Search", searchBuffer, IM_ARRAYSIZE(searchBuffer));
 		ImGui::PopItemWidth();
 		ImGui::Separator();
 
 		for (int i = 0; i < itemNames.size(); i++) {
 			std::string lowerItemName = itemNames[i];
 			std::transform(lowerItemName.begin(), lowerItemName.end(), lowerItemName.begin(), ::tolower);
+			std::string search = searchBuffer;
+			std::transform(search.begin(), search.end(), search.begin(), ::tolower);
 
-			if (lowerItemName.find(searchBuffer) != std::string::npos) {
+			if (lowerItemName.find(search) != std::string::npos) {
 				bool is_selected = (comboSelectedIndex == i);
 				if (ImGui::Selectable(itemNames[i].c_str(), is_selected)) {
-    if (comboSelectedIndex != i) {
-        comboSelectedIndex = i;
-        std::string itemId = dataManager.GetItemId(itemNames[i]);
-        DisplayItem(itemId);
-        selectedItemIndex = 0;  // Reset to 0 as we're now showing a single item
-    }
-}
-				if (is_selected)
-					ImGui::SetItemDefaultFocus();
+					if (comboSelectedIndex != i) {
+						comboSelectedIndex = i;
+						std::string itemId = dataManager.GetItemId(itemNames[i]);
+						DisplayItem(itemId);
+						selectedItemIndex = 0;
+					}
+				}
+				if (is_selected) ImGui::SetItemDefaultFocus();
 			}
 		}
 		ImGui::EndCombo();
 	}
 
+	ImGui::PopStyleColor(11);
+
 	// Navigation and tag buttons
 	ImGui::NewLine();
 	float windowWidth = ImGui::GetWindowWidth();
-	float buttonSpacing = 5.0f;
 	float buttonHeight = 30.0f;
+	float buttonWidth = 80.0f;
 
-	const char* tags[] = { "Back", "Forward", "FIGHTER", "MARKSMAN", "ASSASSIN", "MAGE", "TANK", "SUPPORT" };
-	int numButtons = IM_ARRAYSIZE(tags);
+	const char* tags[] = { "FIGHTER", "MARKSMAN", "ASSASSIN", "MAGE", "TANK", "SUPPORT" };
+	int numTags = IM_ARRAYSIZE(tags);
 
-	// Calculate total width needed for all buttons
-	float totalButtonWidth = 0;
-	for (int i = 0; i < numButtons; i++) {
-		totalButtonWidth += ImGui::CalcTextSize(tags[i]).x + ImGui::GetStyle().FramePadding.x * 2;
+	// Back button
+	ImGui::SetCursorPosX(25);
+	if (ImGui::Button("Back", ImVec2(buttonWidth, buttonHeight))) {
+		GoBack();
 	}
-	totalButtonWidth += buttonSpacing * (numButtons - 1);
 
-	// Calculate starting position to center-align buttons
-	float startX = (windowWidth - totalButtonWidth) / 2;
-	ImGui::SetCursorPosX(startX);
+	ImGui::SameLine();
 
-	// Render all buttons in a single row
-	for (int i = 0; i < numButtons; i++) {
-		if (i > 0) {
-			ImGui::SameLine(0, buttonSpacing);
+	// Forward button (only if there's forward history)
+	bool canGoForward = currentHistoryIndex < history.size() - 1;
+	if (canGoForward) {
+		if (ImGui::Button("Forward", ImVec2(buttonWidth, buttonHeight))) {
+			GoForward();
 		}
+		ImGui::SameLine();
+	}
 
-		bool isActiveTag = (i >= 2 && currentTag == tags[i]);
-		if (isActiveTag) {
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
-		}
-
+	// Render tag buttons
+	ImGui::SetCursorPosX(350);
+	for (int i = 0; i < numTags; i++) {
+		if (i > 0) ImGui::SameLine();
+		bool isActiveTag = (currentTag == tags[i]);
+		if (isActiveTag) ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8431f, 0.7255f, 0.4745f, 1.0f));
 		if (ImGui::Button(tags[i], ImVec2(0, buttonHeight))) {
-			if (i == 0) { // Back button
-				GoBack();
-			}
-			else if (i == 1) { // Forward button
-				GoForward();
-			}
-			else {
-				// Tag buttons
-				DisplayItemsByTag(tags[i]);
-			}
+			DisplayItemsByTag(tags[i]);
 		}
-
-		if (isActiveTag) {
-			ImGui::PopStyleColor();
-		}
+		if (isActiveTag) ImGui::PopStyleColor();
 	}
 
+	// Display items only if a tag is selected or items are being displayed
+	if (!currentItems.empty() || !currentTag.empty()) {
+		ImGui::SetCursorPos(ImVec2(25, ImGui::GetCursorPosY() + 10));
+		ImGui::BeginChild("ItemsList", ImVec2(ImGui::GetWindowWidth() - 50, 300), true);
+		ImGui::Indent(2.5f);
+		int itemsPerRow = 13;
+		for (int i = 0; i < currentItems.size(); i++) {
+			const auto& itemId = currentItems[i];
+			std::string itemName = dataManager.GetSpecificItemName(itemId);
+			std::string itemIconUrl = dataManager.GetItemImageUrl(itemId);
+			GLuint itemTexture = LoadTextureFromURL(itemIconUrl);
 
-	// Display items for the selected tag or combo box selection
-	
-	// Set the cursor position to move the child window to the right
-	ImGui::SetCursorPos(ImVec2(25, ImGui::GetCursorPosY())); // Adjust the 25 to move it more or less to the right
-
-	// Now begin the child window
-	// In RenderItemsWindow function
-
-	ImGui::BeginChild("ItemsList", ImVec2(ImGui::GetWindowWidth() - 50, 300), true);
-	int itemsPerRow = 13;
-	for (int i = 0; i < currentItems.size(); i++) {
-		const auto& itemId = currentItems[i];
-		std::string itemName = dataManager.GetSpecificItemName(itemId);
-		std::string itemIconUrl = dataManager.GetItemImageUrl(itemId);
-
-		GLuint itemTexture = LoadTextureFromURL(itemIconUrl);
-
-		if (i % itemsPerRow != 0) ImGui::SameLine();
-		if (ImGui::ImageButton((void*)(intptr_t)itemTexture, ImVec2(64, 64))) {
-			if (selectedItemIndex != i) {
-				UpdateItemState(itemId, "", false, i, true);
+			if (i % itemsPerRow != 0) ImGui::SameLine();
+			if (ImGui::ImageButton((void*)(intptr_t)itemTexture, ImVec2(64, 64))) {
+				if (selectedItemIndex != i) {
+					UpdateItemState(itemId, "", false, i, true);
+				}
+			}
+			if (ImGui::IsItemHovered()) {
+				ImGui::BeginTooltip();
+				ImGui::Text("%s", itemName.c_str());
+				ImGui::EndTooltip();
 			}
 		}
-		if (ImGui::IsItemHovered()) {
-			ImGui::BeginTooltip();
-			ImGui::Text("%s", itemName.c_str());
-			ImGui::EndTooltip();
-		}
+		ImGui::Unindent(2.5f);
+		ImGui::EndChild();
 	}
-	ImGui::EndChild();
+	else {
+		// Display a message when no tag is selected and no items are displayed
+		ImGui::SetCursorPos(ImVec2(25, ImGui::GetCursorPosY() + 10));
+		ImGui::Text("Select a tag or item to view details.");
+	}
 
-	// Display item details
+	// Display item details only if an item is selected
 	if (!currentItems.empty() && selectedItemIndex >= 0 && selectedItemIndex < currentItems.size()) {
 		std::string itemId = currentItems[selectedItemIndex];
 		currentItemTags = dataManager.GetItemTags(itemId);
-		// Adjust the layout for two columns
-		float columnWidth = (ImGui::GetWindowWidth() - 50) / 2;  // Subtracting 50 for padding
-		// Capture the cursor position before rendering the stats window
+
+		float columnWidth = (ImGui::GetWindowWidth() - 50) / 2;
 		ImVec2 statsWindowPos = ImGui::GetCursorPos();
 
 		// Item stats column
 		ImGui::SetCursorPos(ImVec2(25, ImGui::GetCursorPosY()));
 		ImGui::BeginChild("ItemDetails", ImVec2(columnWidth - 10, 200), true);
-
+		ImGui::Indent(5.0f);
 		ImGui::Text("Name: %s", dataManager.GetSpecificItemName(itemId).c_str());
 		ImGui::Text("Description: %s", dataManager.GetItemDescription(itemId).c_str());
 		int cost = dataManager.GetItemCost(itemId);
-		if (cost >= 0) {
-			ImGui::Text("Cost: %d", cost);
-		}
+		if (cost >= 0) ImGui::Text("Cost: %d", cost);
 
-		// Display item stats
 		auto stats = dataManager.GetItemStats(itemId);
 		if (!stats.empty()) {
 			ImGui::Text("Stats:");
@@ -1195,7 +1199,6 @@ void GUIManager::RenderItemsWindow() {
 			}
 		}
 
-		// Display active ability if it exists
 		auto itemData = dataManager.GetItemData(itemId);
 		if (itemData.contains("active") && !itemData["active"].empty()) {
 			ImGui::Text("Active Ability:");
@@ -1206,72 +1209,50 @@ void GUIManager::RenderItemsWindow() {
 				}
 			}
 		}
-
+		ImGui::Unindent(5.0f);
 		ImGui::EndChild();
-		// Capture the size of the stats window
-		ImVec2 statsWindowSize = ImGui::GetItemRectSize();
-		float itemDetailsHeight = ImGui::GetItemRectSize().y;  // Get the actual height of the item details section
 
 		// Builds Into column
 		ImGui::SetCursorPos(ImVec2(25 + columnWidth, statsWindowPos.y));
-		ImGui::BeginChild("BuildsInto", ImVec2(columnWidth - 10, statsWindowSize.y), true);
+		ImGui::BeginChild("BuildsInto", ImVec2(columnWidth - 10, 200), true);
+		ImGui::Indent(5.0f);
 		ImGui::Text("Builds Into:");
 		std::vector<std::string> buildsInto = dataManager.GetItemBuildsInto(itemId);
 		if (!buildsInto.empty()) {
 			for (const auto& buildItemId : buildsInto) {
-				// Check if the item exists in the data
 				if (dataManager.ItemExists(buildItemId)) {
-					try {
-						std::string buildItemName = dataManager.GetSpecificItemName(buildItemId);
-						std::string buildItemIconUrl = dataManager.GetItemImageUrl(buildItemId);
-						GLuint buildItemTexture = LoadTextureFromURL(buildItemIconUrl);
-						if (ImGui::ImageButton((void*)(intptr_t)buildItemTexture, ImVec2(32, 32))) {
-							backwardHistory.push_back({ itemId, currentTag, false });
-							forwardHistory.clear();
-							DisplayItem(buildItemId);
-							std::cout << "Selected item from 'Builds Into': " << buildItemName << " (ID: " << buildItemId << ")" << std::endl;
-						}
-						ImGui::SameLine();
-						ImGui::Text("%s", buildItemName.c_str());
-						ImGui::Separator();
+					std::string buildItemName = dataManager.GetSpecificItemName(buildItemId);
+					std::string buildItemIconUrl = dataManager.GetItemImageUrl(buildItemId);
+					GLuint buildItemTexture = LoadTextureFromURL(buildItemIconUrl);
+					if (ImGui::ImageButton((void*)(intptr_t)buildItemTexture, ImVec2(32, 32))) {
+						DisplayItem(buildItemId);
 					}
-					catch (const std::exception& e) {
-						ImGui::Text("Error loading item %s: %s", buildItemId.c_str(), e.what());
-					}
-				}
-				else {
-					//ImGui::Text("Item %s not found in data", buildItemId.c_str());
+					ImGui::SameLine();
+					ImGui::Text("%s", buildItemName.c_str());
+					ImGui::Separator();
 				}
 			}
 		}
 		else {
 			ImGui::Text("This item doesn't build into anything.");
 		}
+		ImGui::Unindent(5.0f);
 		ImGui::EndChild();
-	}
-	else {
-		ImGui::Text("No item selected or invalid selection.");
-	}
-	// Display item tags
-	ImGui::Text("Tags:");
-	for (const auto& tag : currentItemTags) {
-		ImGui::SameLine();
-		bool isHighlighted = (tag == currentTag) || (!currentTag.empty() && tag == currentTag);
 
-		if (isHighlighted) {
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
+		// Display item tags
+		ImGui::Indent(25.0f);
+		ImGui::Text("Tags:");
+		for (const auto& tag : currentItemTags) {
+			ImGui::SameLine();
+			bool isHighlighted = (tag == currentTag) || (!currentTag.empty() && tag == currentTag);
+			if (isHighlighted) ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8431f, 0.7255f, 0.4745f, 1.0f));
+			if (ImGui::SmallButton(tag.c_str())) {
+				DisplayItemsByTag(tag);
+			}
+			if (isHighlighted) ImGui::PopStyleColor();
 		}
-
-		if (ImGui::SmallButton(tag.c_str())) {
-			DisplayItemsByTag(tag);
-		}
-
-		if (isHighlighted) {
-			ImGui::PopStyleColor();
-		}
+		ImGui::Unindent(25.0f);
 	}
-
-
 }
 
 void GUIManager::RenderItemsDetail() {
@@ -1465,6 +1446,20 @@ void GUIManager::RenderSummonerSpellsWindow() {
 	// Game mode selection combo box
 	ImGui::SetNextItemWidth(300);
 	ImGui::SetCursorPos(ImVec2(10, 5));
+
+	// Set custom colors
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));         // Dark background for input fields
+	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));  // Slightly lighter when hovered
+	ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));   // Even lighter when active
+	ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));         // Dark background for combo popup
+	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));            // White text
+	ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));          // Slightly lighter background for selected item
+	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));   // Even lighter for hovered item
+	ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));    // Lightest for active/clicked item
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));          // Dark button color
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));   // Lighter button color when hovered
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));    // Even lighter when clicked
+
 	if (ImGui::BeginCombo("##GameModeSelect",
 		selectedGameModeIndex >= 0 && selectedGameModeIndex < gameModes.size()
 		? gameModes[selectedGameModeIndex].mode.c_str()
@@ -1499,23 +1494,25 @@ void GUIManager::RenderSummonerSpellsWindow() {
 		ImGui::EndCombo();
 	}
 
+	// Pop custom colors
+	ImGui::PopStyleColor(11);
+
 	// Display selected game mode description on the same line
 	if (selectedGameModeIndex >= 0 && selectedGameModeIndex < gameModes.size()) {
 		ImGui::SameLine();
 		ImGui::Text("MODE: %s", gameModes[selectedGameModeIndex].description.c_str());
 
-		// Display summoner spells for the selected mode
 		const std::string& selectedMode = gameModes[selectedGameModeIndex].mode;
 		auto spells = dataManager.GetSummonerSpellsForMode(selectedMode);
 
 		ImGui::NewLine();
 
 		if (spells.empty()) {
-			ImGui::SetCursorPosX(25); // 25px indent
+			ImGui::SetCursorPosX(25);
 			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "This game mode does not allow the use of Summoner Spells.");
 		}
 		else {
-			ImGui::SetCursorPosX(25); // 25px indent
+			ImGui::SetCursorPosX(25);
 			ImGui::Text("Summoner Spells Available in %s mode:", selectedMode.c_str());
 			ImGui::NewLine();
 
@@ -1557,58 +1554,66 @@ void GUIManager::RenderSummonerSpellsWindow() {
 			if (selectedSpellIndex >= 0 && selectedSpellIndex < spells.size()) {
 				const auto& selectedSpell = spells[selectedSpellIndex];
 				ImGui::NewLine();
-				ImGui::SetCursorPosX(25); // 25px indent
+				ImGui::SetCursorPosX(25);
 				ImGui::BeginChild("SpellDetails", ImVec2(windowWidth - 50, 100), true);
+				ImGui::Indent(5.0f);
 				ImGui::Text("Name: %s", selectedSpell.name.c_str());
 				ImGui::Text("Summoner Level required to unlock: %d", selectedSpell.summonerLevel);
 				ImGui::TextWrapped("Description: %s", selectedSpell.description.c_str());
 				ImGui::Text("Cooldown: %s", selectedSpell.cooldownBurn.c_str());
+				ImGui::Unindent(5.0f);
 				ImGui::EndChild();
 
 				// Display game mode tags as small buttons
 				ImGui::NewLine();
-				ImGui::SetCursorPosX(25); // 25px indent
+				ImGui::SetCursorPosX(25);
 				ImGui::Text("Available in:");
 				ImGui::SameLine();
 
-				float startX = ImGui::GetCursorPosX(); // Remember the starting X position
+				float startX = ImGui::GetCursorPosX();
 				float currentLineWidth = startX;
-				float maxLineWidth = windowWidth - 50; // Adjusted for the indent
-				float newLineIndent = 0.0f; // Indent for new lines
+				float maxLineWidth = windowWidth - 50;
+				float newLineIndent = 0.0f;
 
-				// Push a smaller font for the tags
 				ImGui::PushFont(smallFont);
 
 				for (const auto& mode : selectedSpell.modes) {
-					// Calculate button size based on text
 					ImVec2 textSize = ImGui::CalcTextSize(mode.c_str());
-					float buttonWidth = textSize.x + 20.0f; // Add some padding
-					float buttonHeight = textSize.y + 16.0f; // Increase vertical padding
+					float buttonWidth = textSize.x + 20.0f;
+					float buttonHeight = textSize.y + 16.0f;
 
 					float buttonAndSpacingWidth = buttonWidth + ImGui::GetStyle().ItemSpacing.x;
 					if (currentLineWidth + buttonAndSpacingWidth > maxLineWidth) {
 						ImGui::NewLine();
-						ImGui::SetCursorPosX(startX + newLineIndent); // Set the cursor 100 pixels to the right
+						ImGui::SetCursorPosX(startX + newLineIndent);
 						currentLineWidth = startX + newLineIndent;
 					}
 
-					ImGui::AlignTextToFramePadding(); // This helps center the text vertically
+					ImGui::AlignTextToFramePadding();
+
+					// Check if this mode is the currently selected mode
+					bool isActiveMode = (mode == selectedMode);
+					if (isActiveMode) {
+						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8431f, 0.7255f, 0.4745f, 1.0f));
+					}
+
 					if (ImGui::Button(mode.c_str(), ImVec2(buttonWidth, buttonHeight))) {
-						// Find the index of the selected game mode
 						auto it = std::find_if(gameModes.begin(), gameModes.end(),
 							[&mode](const DataManager::GameMode& gm) { return gm.mode == mode; });
 						if (it != gameModes.end()) {
 							selectedGameModeIndex = std::distance(gameModes.begin(), it);
 						}
 					}
+
+					if (isActiveMode) {
+						ImGui::PopStyleColor();
+					}
+
 					currentLineWidth += buttonAndSpacingWidth;
 					ImGui::SameLine();
 				}
 
-
 				ImGui::NewLine();
-
-				// Pop the smaller font
 				ImGui::PopFont();
 			}
 		}
