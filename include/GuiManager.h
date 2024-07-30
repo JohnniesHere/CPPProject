@@ -122,6 +122,12 @@ private:
         bool isTagView;
         int selectedIndex;  
     };
+    struct HistoryEntry {
+        std::string itemId;
+        std::string tag;
+        bool isTagView;
+        int selectedIndex;
+    };
 
     std::vector<std::string> currentItemTags;
     std::vector<std::string> currentItems;
@@ -135,12 +141,19 @@ private:
     int selectedItemIndex = -1;
     std::map<std::string, GLuint> itemTextures;
     std::vector<ItemHistoryEntry> backwardHistory;
-    std::vector<ItemHistoryEntry> forwardHistory;
+    std::filesystem::path historyFilePath;
+    std::vector<std::string> forwardHistory;
+    std::vector<HistoryEntry> history;
+    size_t currentHistoryIndex;
     std::string currentTag;
 
     GLuint LoadTextureFromURL(const std::string& url);
     void DisplayItem(const std::string& itemId);
-    void UpdateItemState(const std::string& itemId, const std::string& tag, bool isTagView, int selectedIndex);
+    void UpdateItemState(const std::string& itemId, const std::string& tag, bool isTagView, int selectedIndex, bool addToHistory);
+    void InitializeHistory();
+    void SaveHistory();
+    void GoBack();
+    void GoForward();
 
 
 

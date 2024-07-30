@@ -31,13 +31,15 @@ GUIManager::GUIManager()
 	areSkillIconsLoaded(false),
 	isRandomizing(false),
 	hasRandomChampion(false),
-	comboSelectedIndex(-1) {}
+	comboSelectedIndex(-1),
+	historyFilePath(std::filesystem::current_path() / "item_history.txt") {}
 
 GUIManager::~GUIManager() {
 	isRandomizing.store(false);
 	if (randomizationThread.joinable()) {
 		randomizationThread.join();
 	}
+	//SaveHistory();		// Save the item history	--OPTIONAL, NOT NECCESARY
 	Cleanup();
 }
 
@@ -99,6 +101,7 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 		std::cerr << "Failed to fetch item data" << std::endl;
 		return false;
 	}
+	InitializeHistory();		// Initialize the item history 
 
 	if (!LoadIconTexture("D:\\CPP Project\\CPPProject\\assets\\icon.png")) {
 		std::cerr << "Failed to load icon texture" << std::endl;
@@ -870,8 +873,6 @@ size_t GUIManager::WriteCallback(void* contents, size_t size, size_t nmemb, void
 	return size * nmemb;
 }
 
-
-
 void GUIManager::WindowResizeCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
@@ -1065,15 +1066,13 @@ void GUIManager::RenderItemsWindow() {
 			if (lowerItemName.find(searchBuffer) != std::string::npos) {
 				bool is_selected = (comboSelectedIndex == i);
 				if (ImGui::Selectable(itemNames[i].c_str(), is_selected)) {
-					if (comboSelectedIndex != i) {
-						comboSelectedIndex = i;
-						std::string itemId = dataManager.GetItemId(itemNames[i]);
-						std::cout << "Selected item from combo: " << itemNames[i] << " (ID: " << itemId << ")" << std::endl;
-						// Update currentItems and selectedItemIndex for consistency
-						currentItems = { itemId };
-						selectedItemIndex = 0;
-					}
-				}
+    if (comboSelectedIndex != i) {
+        comboSelectedIndex = i;
+        std::string itemId = dataManager.GetItemId(itemNames[i]);
+        DisplayItem(itemId);
+        selectedItemIndex = 0;  // Reset to 0 as we're now showing a single item
+    }
+}
 				if (is_selected)
 					ImGui::SetItemDefaultFocus();
 			}
@@ -1114,34 +1113,10 @@ void GUIManager::RenderItemsWindow() {
 
 		if (ImGui::Button(tags[i], ImVec2(0, buttonHeight))) {
 			if (i == 0) { // Back button
-				if (!backwardHistory.empty()) {
-					auto previous = backwardHistory.back();
-					backwardHistory.pop_back();
-
-					forwardHistory.push_back({
-						currentItems.empty() ? "" : currentItems[selectedItemIndex],
-						currentTag,
-						!currentTag.empty(),
-						selectedItemIndex
-						});
-
-					UpdateItemState(previous.itemId, previous.tag, previous.isTagView, previous.selectedIndex);
-				}
+				GoBack();
 			}
 			else if (i == 1) { // Forward button
-				if (!forwardHistory.empty()) {
-					auto next = forwardHistory.back();
-					forwardHistory.pop_back();
-
-					backwardHistory.push_back({
-						currentItems.empty() ? "" : currentItems[selectedItemIndex],
-						currentTag,
-						!currentTag.empty(),
-						selectedItemIndex
-						});
-
-					UpdateItemState(next.itemId, next.tag, next.isTagView, next.selectedIndex);
-				}
+				GoForward();
 			}
 			else {
 				// Tag buttons
@@ -1161,7 +1136,9 @@ void GUIManager::RenderItemsWindow() {
 	ImGui::SetCursorPos(ImVec2(25, ImGui::GetCursorPosY())); // Adjust the 25 to move it more or less to the right
 
 	// Now begin the child window
-	ImGui::BeginChild("ItemsList", ImVec2(ImGui::GetWindowWidth() - 50, 300), true); // Adjusted width to account for the moved position    std::cout << "Number of items to display: " << currentItems.size() << std::endl;
+	// In RenderItemsWindow function
+
+	ImGui::BeginChild("ItemsList", ImVec2(ImGui::GetWindowWidth() - 50, 300), true);
 	int itemsPerRow = 13;
 	for (int i = 0; i < currentItems.size(); i++) {
 		const auto& itemId = currentItems[i];
@@ -1171,11 +1148,9 @@ void GUIManager::RenderItemsWindow() {
 		GLuint itemTexture = LoadTextureFromURL(itemIconUrl);
 
 		if (i % itemsPerRow != 0) ImGui::SameLine();
-		if (i < currentItems.size() && ImGui::ImageButton((void*)(intptr_t)itemTexture, ImVec2(64, 64))) {
+		if (ImGui::ImageButton((void*)(intptr_t)itemTexture, ImVec2(64, 64))) {
 			if (selectedItemIndex != i) {
-				backwardHistory.push_back({ currentItems[selectedItemIndex], currentTag, currentTag.empty() ? false : true });
-				forwardHistory.clear();
-				DisplayItem(itemId);
+				UpdateItemState(itemId, "", false, i, true);
 			}
 		}
 		if (ImGui::IsItemHovered()) {
@@ -1281,17 +1256,22 @@ void GUIManager::RenderItemsWindow() {
 	ImGui::Text("Tags:");
 	for (const auto& tag : currentItemTags) {
 		ImGui::SameLine();
-		bool isOriginalTag = (tag == currentTag);
-		if (isOriginalTag) {
+		bool isHighlighted = (tag == currentTag) || (!currentTag.empty() && tag == currentTag);
+
+		if (isHighlighted) {
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
 		}
+
 		if (ImGui::SmallButton(tag.c_str())) {
 			DisplayItemsByTag(tag);
-		} 
-		if (isOriginalTag) {
+		}
+
+		if (isHighlighted) {
 			ImGui::PopStyleColor();
 		}
 	}
+
+
 }
 
 void GUIManager::RenderItemsDetail() {
@@ -1324,7 +1304,7 @@ void GUIManager::RenderItemsDetail() {
 }
 
 void GUIManager::DisplayItemsByTag(const std::string& tag) {
-	UpdateItemState("", tag, true, 0);
+	UpdateItemState("", tag, true, 0, true);
 }
 // Simplified function to load texture from URL
 GLuint GUIManager::LoadTextureFromURL(const std::string& url) {
@@ -1367,25 +1347,85 @@ GLuint GUIManager::LoadTextureFromURL(const std::string& url) {
 }
 
 void GUIManager::DisplayItem(const std::string& itemId) {
-	UpdateItemState(itemId, "", false, 0);
-	currentItemTags = dataManager.GetItemTags(itemId);
-}
-void GUIManager::UpdateItemState(const std::string& itemId, const std::string& tag, bool isTagView, int selectedIndex) {
-	backwardHistory.push_back({
-		currentItems.empty() ? "" : currentItems[selectedItemIndex],
-		currentTag,
-		!currentTag.empty(),
-		selectedItemIndex
-		});
-	forwardHistory.clear();
-
-	currentItems = isTagView ? dataManager.GetItemsByTag(tag) : std::vector<std::string>{ itemId };
-	selectedItemIndex = selectedIndex;
-	currentTag = tag;
-	comboSelectedIndex = -1;
+	UpdateItemState(itemId, "", false, 0, true);
 }
 
+void GUIManager::UpdateItemState(const std::string& itemId, const std::string& tag, bool isTagView, int selectedIndex, bool addToHistory = true) {
+	if (addToHistory) {
+		// Remove any forward history
+		if (currentHistoryIndex < history.size() - 1) {
+			history.erase(history.begin() + currentHistoryIndex + 1, history.end());
+		}
 
+		// Add new entry
+		history.push_back({ itemId, tag, isTagView, selectedIndex });
+		currentHistoryIndex = history.size() - 1;
+	}
+
+	if (isTagView) {
+		currentItems = dataManager.GetItemsByTag(tag);
+		currentTag = tag;
+		selectedItemIndex = -1;
+		comboSelectedIndex = -1;
+		currentItemTags.clear();  // Clear item tags when viewing a tag
+	}
+	else {
+		if (!dataManager.ItemExists(itemId)) {
+			std::cerr << "Invalid item ID: " << itemId << std::endl;
+			return;
+		}
+		currentItems = { itemId };
+		// Don't clear currentTag here
+		selectedItemIndex = 0;
+		comboSelectedIndex = -1;
+		currentItemTags = dataManager.GetItemTags(itemId);  // Store the item's tags
+
+		// If currentTag is empty and the item has tags, set currentTag to the first tag
+		if (currentTag.empty() && !currentItemTags.empty()) {
+			currentTag = currentItemTags[0];
+		}
+
+		const auto& allItems = dataManager.GetItemNames();
+		auto it = std::find(allItems.begin(), allItems.end(), dataManager.GetSpecificItemName(itemId));
+		if (it != allItems.end()) {
+			comboSelectedIndex = std::distance(allItems.begin(), it);
+		}
+	}
+}
+
+void GUIManager::InitializeHistory() {
+	history.clear();
+	currentHistoryIndex = 0;
+
+	// Initialize with a default entry if needed
+	// For example, you might want to start with the default view of all items or a specific category
+	history.push_back({ "", "", true, -1 }); // Represents the initial state
+	currentHistoryIndex = 0;
+}
+
+void GUIManager::SaveHistory() {
+	std::ofstream file(historyFilePath, std::ios::trunc);
+	for (const auto& entry : history) {
+		file << entry.itemId << ',' << entry.tag << ',' << entry.isTagView << ',' << entry.selectedIndex << '\n';
+	}
+	file.close();
+}
+
+void GUIManager::GoBack() {
+	if (currentHistoryIndex > 0) {
+		currentHistoryIndex--;
+		const auto& entry = history[currentHistoryIndex];
+		UpdateItemState(entry.itemId, entry.tag, entry.isTagView, entry.selectedIndex, false);
+	}
+}
+
+void GUIManager::GoForward() {
+	if (currentHistoryIndex < history.size() - 1) {
+		currentHistoryIndex++;
+		const auto& entry = history[currentHistoryIndex];
+		UpdateItemState(entry.itemId, entry.tag, entry.isTagView, entry.selectedIndex, false);
+	}
+}
 
 // Summoner's Spells page
 void GUIManager::RenderSummonerSpellsWindow() {
@@ -1585,3 +1625,4 @@ GLuint GUIManager::LoadSummonerSpellTexture(const std::string& spellId) {
 	summonerSpellTextures[spellId] = texture;
 	return texture;
 }
+
