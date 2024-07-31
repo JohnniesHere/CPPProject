@@ -25,7 +25,7 @@ This project demonstrates the creation of a graphical application using GLFW, Op
 
 ## How to Run
 Download the installer (LoLinfoAppSetup.msi) and simply run it, the you can use the shrotcut in you desktop.
-Virut total scan - [here](https://www.virustotal.com/gui/file/61921de563fa027677fccb324f5fef432a7ecade34a961e90b07465c4d3d1205?nocache=1)
+Virus total scan - [here](https://www.virustotal.com/gui/file/61921de563fa027677fccb324f5fef432a7ecade34a961e90b07465c4d3d1205?nocache=1)
 
 
 ## Functions
