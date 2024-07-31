@@ -24,7 +24,8 @@ This project demonstrates the creation of a graphical application using GLFW, Op
 - [httplib](https://github.com/yhirose/cpp-httplib): For making HTTP requests.
 
 ## How to Run
-    Download the installer and simply run it, the you can use the shrotcut in you desktop.
+    Download the installer (LoLinfoAppSetup.msi) and simply run it, the you can use the shrotcut in you desktop.
+    Virut total scan - [here](https://www.virustotal.com/gui/file/61921de563fa027677fccb324f5fef432a7ecade34a961e90b07465c4d3d1205?nocache=1)
 
 
 ## Functions
