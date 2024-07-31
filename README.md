@@ -24,34 +24,22 @@ This project demonstrates the creation of a graphical application using GLFW, Op
 - [httplib](https://github.com/yhirose/cpp-httplib): For making HTTP requests.
 
 ## How to Run
+    Download the installer and simply run it, the you can use the shrotcut in you desktop.
 
-## How to Use
-
-ATM, just complie and run it using the .sln
-
-### Initialization
-
-WIP
 
 ## Functions
-
-WIP
-
-## Input
-
-WIP
+- Info about Champions, Items and Summoner's Spells.
 
 ## Output
 
 The program outputs the GUI elements and data fetched from the League of Legends API. It provides visual feedback and interactions through the GUI window.
 
-## Files
-- `CPPProject.cpp`: Contains the main function to initialize and run the GUI application.
+## Project Files
+- `main.cpp`: Contains the main function to initialize and run the GUI application.
 - `GuiManager.cpp`: Implementation of the GUI manager for handling the GUI window and rendering.
 - `GuiManager.h`: Header file for the GUI manager with class definitions and function signatures.
 - `DataManager.cpp`: Implementation of the data manager for fetching and processing data from the API.
 - `DataManager.h`: Header file for the data manager with class definitions and function signatures.
-- `run_me.sh`: A script to compile and run the program.
 - `README.txt`: The text file you are currently reading.
 
 ## License
