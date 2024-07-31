@@ -39,7 +39,9 @@ GUIManager::~GUIManager() {
 	if (randomizationThread.joinable()) {
 		randomizationThread.join();
 	}
-	//SaveHistory();		// Save the item history	--OPTIONAL, NOT NECCESARY
+	if (images[0].pixels) {
+		stbi_image_free(images[0].pixels);
+	}
 	Cleanup();
 }
 
@@ -56,6 +58,12 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 	if (window == NULL)
 		return false;
 
+	HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1));
+	if (hIcon) {
+		HWND hwnd = glfwGetWin32Window(window);
+		SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+		SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+	}
 
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);

@@ -16,13 +16,13 @@
 #include <future>
 #include <thread>
 #include <numeric>
-
+#include "resource1.h"
 
 class GUIManager {
 public:
     GUIManager();
     ~GUIManager();
-
+    GLFWimage images[1];
     bool Initialize(int width, int height, const char* title);
     void HandleDragging();
     bool ShouldClose();

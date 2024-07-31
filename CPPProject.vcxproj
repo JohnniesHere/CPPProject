@@ -126,7 +126,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\CPP Project\LoLinfoApp\third_party\nlohmann;D:\CPP Project\LoLinfoApp\third_party\imgui-1.90.8;D:\CPP Project\LoLinfoApp\third_party\glfw-3.4.bin.WIN64\include;D:\CPP Project\LoLinfoApp\third_party\imgui-1.90.8\backends;D:\CPP Project\LoLinfoApp\third_party;D:\CPP Project\LoLinfoApp\include;$(VcpkgRoot)\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\CPP Project\LoLinfoApp;D:\CPP Project\LoLinfoApp\third_party\nlohmann;D:\CPP Project\LoLinfoApp\third_party\imgui-1.90.8;D:\CPP Project\LoLinfoApp\third_party\glfw-3.4.bin.WIN64\include;D:\CPP Project\LoLinfoApp\third_party\imgui-1.90.8\backends;D:\CPP Project\LoLinfoApp\third_party;D:\CPP Project\LoLinfoApp\include;$(VcpkgRoot)\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -155,6 +155,7 @@ shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
   <ItemGroup>
     <ClInclude Include="include\DataManager.h" />
     <ClInclude Include="include\GuiManager.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="third_party\httplib.h" />
     <ClInclude Include="third_party\imgui-1.90.8\backends\imgui_impl_glfw.h" />
     <ClInclude Include="third_party\imgui-1.90.8\backends\imgui_impl_opengl3.h" />
@@ -164,6 +165,12 @@ shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="LoLinfoApp.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
