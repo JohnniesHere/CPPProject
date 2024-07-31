@@ -25,7 +25,7 @@ This project demonstrates the creation of a graphical application using GLFW, Op
 
 ## How to Run
 Download the installer (LoLinfoAppSetup.msi) and simply run it, then you can use the shortcut in your desktop.
-Virus total scan - [here]([https://www.virustotal.com/gui/file/61921de563fa027677fccb324f5fef432a7ecade34a961e90b07465c4d3d1205?nocache=1](https://www.virustotal.com/gui/file/39330c96deef5aeec3e71441611e442e37accd7fd2e2b8fa0cc8057532cb0693?nocache=1)) note that there are few false - positives.
+Virus total scan - [here](https://www.virustotal.com/gui/file/39330c96deef5aeec3e71441611e442e37accd7fd2e2b8fa0cc8057532cb0693?nocache=1) note that there are few false - positives.
 
 
 ## Functions
