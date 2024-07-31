@@ -73,14 +73,14 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 	ImGuiIO& io = ImGui::GetIO();
 	// Load and set the custom font
 	// Load the default font
-		defaultFont = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\CPPProject\\assets\\recharge bd.ttf", 14.0f);
+		defaultFont = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\LoLinfoApp\\assets\\recharge bd.ttf", 14.0f);
 	if (defaultFont == nullptr) {
 		std::cerr << "Failed to load default font" << std::endl;
 		return false;
 	}
 
 	// Load a smaller version of the same font for tags
-	smallFont = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\CPPProject\\assets\\recharge bd.ttf", 10.0f);
+	smallFont = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\LoLinfoApp\\assets\\recharge bd.ttf", 10.0f);
 	if (smallFont == nullptr) {
 		std::cerr << "Failed to load small font" << std::endl;
 		return false;
@@ -90,7 +90,7 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 	ImGui_ImplOpenGL3_Init("#version 130");
 
 
-	backgroundTexture = LoadTexture("D:\\CPP Project\\CPPProject\\assets\\image.png");
+	backgroundTexture = LoadTexture("D:\\CPP Project\\LoLinfoApp\\assets\\image.png");
 
 	if (!dataManager.FetchChampionData()) {
 		std::cerr << "Failed to fetch champion data" << std::endl;
@@ -103,7 +103,7 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 	}
 	InitializeHistory();		// Initialize the item history 
 
-	if (!LoadIconTexture("D:\\CPP Project\\CPPProject\\assets\\icon.png")) {
+	if (!LoadIconTexture("D:\\CPP Project\\LoLinfoApp\\assets\\icon.png")) {
 		std::cerr << "Failed to load icon texture" << std::endl;
 		// Decide if you want to return false here or continue without the icon
 	}
