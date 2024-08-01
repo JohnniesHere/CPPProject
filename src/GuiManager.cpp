@@ -50,13 +50,31 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 	if (!glfwInit())
 		return false;
 
+	// Get the primary monitor
+	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+	if (!primaryMonitor) {
+		std::cerr << "Failed to get primary monitor" << std::endl;
+		return false;
+	}
+
+	// Get the monitor's resolution
+	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+	if (!mode) {
+		std::cerr << "Failed to get video mode" << std::endl;
+		return false;
+	}
+
+	// Calculate the position for the center of the screen
+	int xpos = (mode->width - width) / 2;
+	int ypos = (mode->height - height) / 2;
 
 	glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-
-
 	window = glfwCreateWindow(width, height, title, NULL, NULL);
 	if (window == NULL)
 		return false;
+
+	// Set the window position to center it
+	glfwSetWindowPos(window, xpos, ypos);
 
 	HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1));
 	if (hIcon) {
@@ -68,10 +86,7 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
 
-
 	windowSize = ImVec2(width, height);
-
-	// Set the resize callback
 	glfwSetWindowSizeCallback(window, WindowResizeCallback);
 
 	IMGUI_CHECKVERSION();
@@ -79,15 +94,13 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 	ImGui::StyleColorsDark();
 	ApplyCustomStyles();
 	ImGuiIO& io = ImGui::GetIO();
-	// Load and set the custom font
-	// Load the default font
-		defaultFont = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\LoLinfoApp\\assets\\recharge bd.ttf", 14.0f);
+
+	defaultFont = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\LoLinfoApp\\assets\\recharge bd.ttf", 14.0f);
 	if (defaultFont == nullptr) {
 		std::cerr << "Failed to load default font" << std::endl;
 		return false;
 	}
 
-	// Load a smaller version of the same font for tags
 	smallFont = io.Fonts->AddFontFromFileTTF("D:\\CPP Project\\LoLinfoApp\\assets\\recharge bd.ttf", 10.0f);
 	if (smallFont == nullptr) {
 		std::cerr << "Failed to load small font" << std::endl;
@@ -96,7 +109,6 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 130");
-
 
 	backgroundTexture = LoadTexture("D:\\CPP Project\\LoLinfoApp\\assets\\image.png");
 
@@ -109,16 +121,16 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 		std::cerr << "Failed to fetch item data" << std::endl;
 		return false;
 	}
-	InitializeHistory();		// Initialize the item history 
+
+	InitializeHistory();
 
 	if (!LoadIconTexture("D:\\CPP Project\\LoLinfoApp\\assets\\icon.png")) {
 		std::cerr << "Failed to load icon texture" << std::endl;
-		// Decide if you want to return false here or continue without the icon
+		// You can decide whether to return false here or continue without the icon
 	}
 
 	return true;
 }
-
 void GUIManager::HandleDragging() {
     if (ImGui::IsMouseDragging(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem)) {
         ImVec2 delta = ImGui::GetMouseDragDelta(0);
