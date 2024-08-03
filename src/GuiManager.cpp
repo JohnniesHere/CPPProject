@@ -126,7 +126,6 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 
 	if (!LoadIconTexture(".\\assets\\icon.png")) {
 		std::cerr << "Failed to load icon texture" << std::endl;
-		// You can decide whether to return false here or continue without the icon
 	}
 
 	return true;
@@ -149,29 +148,6 @@ void GUIManager::Render() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-
-
-	// Handle window dragging
-	if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
-	{
-		isDragging = true;
-		dragStartPos = ImGui::GetMousePos();
-	}
-	else if (ImGui::IsMouseReleased(0))
-	{
-		isDragging = false;
-	}
-
-	if (isDragging)
-	{
-		ImVec2 delta = ImVec2(ImGui::GetMousePos().x - dragStartPos.x, ImGui::GetMousePos().y - dragStartPos.y);
-
-		int x, y;
-		glfwGetWindowPos(window, &x, &y);
-		glfwSetWindowPos(window, x + delta.x, y + delta.y);
-		dragStartPos = ImGui::GetMousePos();
-	}
-
 
     HandleDragging();
 
@@ -257,8 +233,7 @@ void GUIManager::RenderGUI() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-	ImColor separatorColor(ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Adjust color as needed
-
+	ImColor separatorColor(ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); 
 	ImGui::Begin("Full Window", nullptr,
 		ImGuiWindowFlags_NoDecoration |
 		ImGuiWindowFlags_NoMove |
@@ -269,12 +244,12 @@ void GUIManager::RenderGUI() {
 		ImGuiWindowFlags_NoScrollWithMouse);
 
 	float windowWidth = ImGui::GetWindowWidth();
-	float buttonHeight = 30.0f; // Adjust as needed
+	float buttonHeight = 30.0f; 
 	float logoWidth = 32.0f; // Width of your logo
 	float closeButtonsWidth = 60.0f; // Width of close and minimize buttons
 	float mainButtonsWidth = windowWidth - logoWidth - closeButtonsWidth;
 	float sectionWidth = mainButtonsWidth / 3.0f;
-	float separatorThickness = 0.5f; // Adjust this value to make the line thicker or thinner
+	float separatorThickness = 0.5f; 
 
 	// Logo
 	ImGui::SetCursorPos(ImVec2(0, 0));
@@ -1397,9 +1372,6 @@ void GUIManager::UpdateItemState(const std::string& itemId, const std::string& t
 void GUIManager::InitializeHistory() {
 	history.clear();
 	currentHistoryIndex = 0;
-
-	// Initialize with a default entry if needed
-	// For example, you might want to start with the default view of all items or a specific category
 	history.push_back({ "", "", true, -1 }); // Represents the initial state
 	currentHistoryIndex = 0;
 }
@@ -1546,7 +1518,6 @@ void GUIManager::RenderSummonerSpellsWindow() {
 
 			for (size_t i = 0; i < spells.size(); ++i) {
 				if (i % iconsPerRow == 0) {
-					// Start a new row
 					ImGui::NewLine();
 					ImGui::SetCursorPosX(leftOffset); // Set left offset
 				}
