@@ -5,7 +5,7 @@ VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LoLinfoApp", "CPPProject.vcxproj", "{1CB5796F-949C-4AD2-B078-F8333B60EC45}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{607805E7-D578-4FE6-B016-B2C4A1D509A4}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LoLinfoAppSetup", "LoLinfoAppSetup\LoLinfoAppSetup.vdproj", "{80F0297C-75AB-4A8E-8AA3-6B17578DB56B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{1CB5796F-949C-4AD2-B078-F8333B60EC45}.Release|x64.Build.0 = Release|x64
 		{1CB5796F-949C-4AD2-B078-F8333B60EC45}.Release|x86.ActiveCfg = Release|Win32
 		{1CB5796F-949C-4AD2-B078-F8333B60EC45}.Release|x86.Build.0 = Release|Win32
-		{607805E7-D578-4FE6-B016-B2C4A1D509A4}.Debug|x64.ActiveCfg = Debug
-		{607805E7-D578-4FE6-B016-B2C4A1D509A4}.Debug|x86.ActiveCfg = Debug
-		{607805E7-D578-4FE6-B016-B2C4A1D509A4}.Release|x64.ActiveCfg = Release
-		{607805E7-D578-4FE6-B016-B2C4A1D509A4}.Release|x86.ActiveCfg = Release
+		{80F0297C-75AB-4A8E-8AA3-6B17578DB56B}.Debug|x64.ActiveCfg = Debug
+		{80F0297C-75AB-4A8E-8AA3-6B17578DB56B}.Debug|x86.ActiveCfg = Debug
+		{80F0297C-75AB-4A8E-8AA3-6B17578DB56B}.Release|x64.ActiveCfg = Release
+		{80F0297C-75AB-4A8E-8AA3-6B17578DB56B}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
