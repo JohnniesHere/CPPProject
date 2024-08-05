@@ -130,6 +130,7 @@ bool GUIManager::Initialize(int width, int height, const char* title) {
 
 	return true;
 }
+
 void GUIManager::HandleDragging() {
     if (ImGui::IsMouseDragging(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem)) {
         ImVec2 delta = ImGui::GetMouseDragDelta(0);
@@ -429,6 +430,7 @@ void GUIManager::RenderDefaultWindow() {
 	ImGui::Text("Select one option above");
 }
 
+// Champions window functions implementation -------------------------------------------------------------------------------------------------------------------
 void GUIManager::RenderChampionsWindow() {
 	const auto& championNames = dataManager.GetChampionNames();
 
@@ -790,7 +792,6 @@ void GUIManager::RenderChampionsWindow() {
 	}
 }
 
-
 void GUIManager::CleanupSkinTextures() {
 	for (auto& pair : skinTextures) {
 		glDeleteTextures(1, &pair.second);
@@ -1036,7 +1037,7 @@ void GUIManager::RandomizeChampion() {
 	randomizationThread.detach(); // Allow the thread to run independently
 }
 
-// Item window functions implementation
+// Item window functions implementation -------------------------------------------------------------------------------------------------------------------------
 void GUIManager::RenderItemsWindow() {
 	const auto& itemNames = dataManager.GetItemNames();
 	if (itemNames.empty()) {
@@ -1282,7 +1283,7 @@ void GUIManager::RenderItemsDetail() {
 void GUIManager::DisplayItemsByTag(const std::string& tag) {
 	UpdateItemState("", tag, true, 0, true);
 }
-// Simplified function to load texture from URL
+
 GLuint GUIManager::LoadTextureFromURL(const std::string& url) {
 	// Check if the texture is already loaded
 	if (itemTextures.find(url) != itemTextures.end()) {
@@ -1400,7 +1401,7 @@ void GUIManager::GoForward() {
 	}
 }
 
-// Summoner's Spells page
+// Summoner's Spells page ---------------------------------------------------------------------------------------------------------------------------------------
 void GUIManager::RenderSummonerSpellsWindow() {
 	// Fetch game modes if not already done
 	static bool gameModesLoaded = false;
@@ -1621,4 +1622,3 @@ GLuint GUIManager::LoadSummonerSpellTexture(const std::string& spellId) {
 	summonerSpellTextures[spellId] = texture;
 	return texture;
 }
-
