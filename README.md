@@ -6,6 +6,10 @@ Authors: Jonathan Elgarisi & Hagi Debby
 
 This project demonstrates the creation of a graphical application using GLFW, OpenGL, and Dear ImGui. The application provides detailed information about League of Legends champions, items, and summoner spells, including images and text details fetched from JSON files.
 
+## Demo Video 
+
+https://github.com/user-attachments/assets/68dda149-fe66-4bb4-9360-fa2915ec4c2f
+
 ## Features
 - Initialize and manage a GLFW window.
 - Render GUI elements using Dear ImGui.
