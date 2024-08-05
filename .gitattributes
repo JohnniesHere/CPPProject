@@ -1,2 +1,5 @@
 third-party/* linguist-vendored
 vcpkg_installed/* linguist-vendored
+
+*.c linguist-language=C++
+*.h linguist-language=C++
