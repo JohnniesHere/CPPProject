@@ -108,13 +108,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\CPP Project\LoLinfoApp\third_party\nlohmann;D:\CPP Project\LoLinfoApp\third_party\imgui-1.90.8;D:\CPP Project\LoLinfoApp\third_party\glfw-3.4.bin.WIN64\include;D:\CPP Project\LoLinfoApp\third_party\imgui-1.90.8\backends;D:\CPP Project\LoLinfoApp\third_party;D:\CPP Project\LoLinfoApp\include;D:\CPP Project\CPPProject\vcpkg_installed\x64-windows\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)third_party\nlohmann;$(ProjectDir)third_party\imgui-1.90.8;$(ProjectDir)third_party\glfw-3.4.bin.WIN64\include;$(ProjectDir)third_party\imgui-1.90.8\backends;$(ProjectDir)third_party;$(ProjectDir)include;$(ProjectDir)vcpkg_installed\x64-windows\x64-windows\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\CPP Project\LoLinfoApp\vcpkg_installed\x64-windows\x64-windows\lib;D:\CPP Project\LoLinfoApp\third_party\glfw-3.4.bin.WIN64\lib-vc2022;D:\CPP Project\CPPProject\vcpkg_installed\x64-windows\x64-windows\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)vcpkg_installed\x64-windows\x64-windows\lib;$(ProjectDir)third_party\glfw-3.4.bin.WIN64\lib-vc2022</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;gdi32.lib;shell32.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
